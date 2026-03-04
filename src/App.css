@@ -1,0 +1,13 @@
+/* App.css - Main Application Styles */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.App {
+  width: 100%;
+  background-color: #040c14;
+  color: #ffffff;
+}
