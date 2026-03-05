@@ -1189,21 +1189,23 @@ const SERVICES = [
 ];
 
 const IMAGES = [
-  { id: 1,  src: "/assets/tattoo1.jpg",  title: "Custom Floral",     style: "Botanical" },
-  { id: 2,  src: "/assets/tattoo2.jpg",  title: "Dragon",            style: "Japanese" },
-  { id: 3,  src: "/assets/tattoo3.jpg",  title: "Spiritual Art",     style: "Spiritual" },
-  { id: 4,  src: "/assets/tattoo4.jpg",  title: "Geometric",         style: "Blackwork" },
-  { id: 5,  src: "/assets/tattoo5.jpg",  title: "Realism Study",     style: "Realism" },
-  { id: 6,  src: "/assets/tattoo6.jpg",  title: "Portrait",          style: "Realism" },
-  { id: 7,  src: "/assets/tattoo7.jpg",  title: "Mandala",           style: "Dotwork" },
-  { id: 8,  src: "/assets/tattoo8.jpg",  title: "Neo-Traditional",   style: "Neo-Trad" },
-  { id: 9,  src: "/assets/tattoo9.jpg",  title: "Anime Art",         style: "Illustrative" },
-  { id: 10, src: "/assets/tattoo10.jpg", title: "Ornamental",        style: "Ornamental" },
-  { id: 11, src: "/assets/tattoo11.jpg", title: "Fine Line",         style: "Fine Line" },
-  { id: 12, src: "/assets/tattoo12.jpg", title: "Surrealism",        style: "Surreal" },
-  { id: 13, src: "/assets/tattoo13.jpg", title: "Blackwork",         style: "Blackwork" },
-  { id: 14, src: "/assets/tattoo14.jpg", title: "Custom Piece",      style: "Custom" },
+  { id: 1,  src: "/assets/tattoo1.png",  title: "Custom Floral",     style: "Botanical" },
+  { id: 2,  src: "/assets/tattoo2.png",  title: "Dragon",            style: "Japanese" },
+  { id: 3,  src: "/assets/tattoo3.png",  title: "Spiritual Art",     style: "Spiritual" },
+  { id: 4,  src: "/assets/tattoo4.png",  title: "Geometric",         style: "Blackwork" },
+  { id: 5,  src: "/assets/tattoo5.png",  title: "Realism Study",     style: "Realism" },
+  { id: 6,  src: "/assets/tattoo6.png",  title: "Portrait",          style: "Realism" },
+  { id: 7,  src: "/assets/tattoo7.png",  title: "Mandala",           style: "Dotwork" },
+  { id: 8,  src: "/assets/tattoo8.png",  title: "Neo-Traditional",   style: "Neo-Trad" },
+  { id: 9,  src: "/assets/tattoo9.png",  title: "Anime Art",         style: "Illustrative" },
+  { id: 10, src: "/assets/tattoo10.png", title: "Ornamental",        style: "Ornamental" },
+  { id: 11, src: "/assets/tattoo11.png", title: "Fine Line",         style: "Fine Line" },
+  { id: 12, src: "/assets/tattoo12.png", title: "Surrealism",        style: "Surreal" },
+  { id: 13, src: "/assets/tattoo13.png", title: "Blackwork",         style: "Blackwork" },
+  { id: 14, src: "/assets/tattoo14.png", title: "Custom Piece",      style: "Custom" },
 ];
+
+
 const STYLES_LIST = [
   "Custom Design", "Realism / Portrait", "Blackwork / Dotwork",
   "Traditional / Neo-Trad", "Script / Lettering", "Cover-up / Rework",
