@@ -1189,20 +1189,21 @@ const SERVICES = [
 ];
 
 const IMAGES = [
-  { id: 1,  title: "Custom Floral",     style: "Botanical" },
-  { id: 2,  title: "Dragon",            style: "Japanese" },
-  { id: 3,  title: "Spiritual Art",     style: "Spiritual" },
-  { id: 4,  title: "Geometric",         style: "Blackwork" },
-  { id: 5,  title: "Realism Study",     style: "Realism" },
-  { id: 6,  title: "Portrait",          style: "Realism" },
-  { id: 7,  title: "Mandala",           style: "Dotwork" },
-  { id: 8,  title: "Neo-Traditional",   style: "Neo-Trad" },
-  { id: 9,  title: "Anime Art",         style: "Illustrative" },
-  { id: 10, title: "Ornamental",        style: "Ornamental" },
-  { id: 11, title: "Fine Line",         style: "Fine Line" },
-  { id: 12, title: "Surrealism",        style: "Surreal" },
+  { id: 1,  src: "/assets/tattoo1.jpg",  title: "Custom Floral",     style: "Botanical" },
+  { id: 2,  src: "/assets/tattoo2.jpg",  title: "Dragon",            style: "Japanese" },
+  { id: 3,  src: "/assets/tattoo3.jpg",  title: "Spiritual Art",     style: "Spiritual" },
+  { id: 4,  src: "/assets/tattoo4.jpg",  title: "Geometric",         style: "Blackwork" },
+  { id: 5,  src: "/assets/tattoo5.jpg",  title: "Realism Study",     style: "Realism" },
+  { id: 6,  src: "/assets/tattoo6.jpg",  title: "Portrait",          style: "Realism" },
+  { id: 7,  src: "/assets/tattoo7.jpg",  title: "Mandala",           style: "Dotwork" },
+  { id: 8,  src: "/assets/tattoo8.jpg",  title: "Neo-Traditional",   style: "Neo-Trad" },
+  { id: 9,  src: "/assets/tattoo9.jpg",  title: "Anime Art",         style: "Illustrative" },
+  { id: 10, src: "/assets/tattoo10.jpg", title: "Ornamental",        style: "Ornamental" },
+  { id: 11, src: "/assets/tattoo11.jpg", title: "Fine Line",         style: "Fine Line" },
+  { id: 12, src: "/assets/tattoo12.jpg", title: "Surrealism",        style: "Surreal" },
+  { id: 13, src: "/assets/tattoo13.jpg", title: "Blackwork",         style: "Blackwork" },
+  { id: 14, src: "/assets/tattoo14.jpg", title: "Custom Piece",      style: "Custom" },
 ];
-
 const STYLES_LIST = [
   "Custom Design", "Realism / Portrait", "Blackwork / Dotwork",
   "Traditional / Neo-Trad", "Script / Lettering", "Cover-up / Rework",
@@ -1500,14 +1501,20 @@ function Gallery() {
               className={`gal-card${i === active ? " active" : ""}`}
               onClick={() => goTo(i)}
             >
-              <div className="gal-placeholder">
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" opacity="0.2" aria-hidden="true">
-                  <rect x="1" y="1" width="30" height="30" rx="2" stroke="currentColor" strokeWidth="1"/>
-                  <circle cx="11" cy="11" r="3.5" stroke="currentColor" strokeWidth="1"/>
-                  <path d="M1 22l9-7 7 6 5-4 10 7" stroke="currentColor" strokeWidth="1"/>
-                </svg>
-                <span>{img.title}</span>
-              </div>
+              {/* ← Real image instead of placeholder */}
+              <img
+                src={img.src}
+                alt={img.title}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: "block",
+                  transition: "transform 0.5s cubic-bezier(0.16,1,0.3,1)",
+                }}
+                onMouseEnter={e => e.currentTarget.style.transform = "scale(1.05)"}
+                onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+              />
               <div className="gal-overlay">
                 <div className="gal-style">{img.style}</div>
                 <div className="gal-title">{img.title}</div>
@@ -1524,7 +1531,11 @@ function Gallery() {
               onClick={() => goTo(i)}
               aria-label={`Go to ${img.title}`}
             >
-              <div className="gal-thumb-inner" />
+              <img
+                src={img.src}
+                alt={img.title}
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              />
             </button>
           ))}
         </div>
