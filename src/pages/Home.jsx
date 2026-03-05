@@ -1,744 +1,1421 @@
 import { useState, useRef, useEffect } from "react";
 
-/* ─────────────────────────────────────────────
-   GOOGLE FONTS loaded via @import inside <style>
-───────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   INKFINITY TATTOO STUDIO — by Abhi Borge
+   Single-file React component (drop into Home.jsx)
+   Theme: Midnight Ink — Deep black + electric cyan + white
+═══════════════════════════════════════════════════════════ */
 
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --cream: #faf8f5;
-    --white: #ffffff;
-    --ink: #1a1a1a;
-    --ink-light: #3d3d3d;
-    --ink-muted: #7a7a7a;
-    --gold: #c9a84c;
-    --gold-light: #e8d4a0;
-    --pearl: #e8e4de;
-    --border: rgba(26,26,26,0.1);
-    --shadow: 0 4px 40px rgba(0,0,0,0.08);
-    --shadow-lg: 0 20px 60px rgba(0,0,0,0.12);
+    --bg:          #09090b;
+    --bg2:         #0f0f12;
+    --bg3:         #141417;
+    --surface:     #1a1a1f;
+    --surface2:    #222228;
+    --white:       #ffffff;
+    --white-60:    rgba(255,255,255,0.6);
+    --white-30:    rgba(255,255,255,0.3);
+    --white-10:    rgba(255,255,255,0.08);
+    --white-05:    rgba(255,255,255,0.04);
+    --cyan:        #00e5ff;
+    --cyan-dim:    #00b8cc;
+    --cyan-glow:   rgba(0,229,255,0.15);
+    --cyan-subtle: rgba(0,229,255,0.06);
+    --border:      rgba(255,255,255,0.07);
+    --border-cyan: rgba(0,229,255,0.2);
+    --shadow:      0 4px 30px rgba(0,0,0,0.4);
+    --shadow-lg:   0 20px 60px rgba(0,0,0,0.6);
+    --glow:        0 0 30px rgba(0,229,255,0.2);
+    --radius:      2px;
+    --font-display: 'Bebas Neue', 'Arial Narrow', sans-serif;
+    --font-head:    'Syne', system-ui, sans-serif;
+    --font-body:    'Syne', system-ui, sans-serif;
+    --font-serif:   'Crimson Pro', Georgia, serif;
+    --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   html { scroll-behavior: smooth; }
 
   body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--cream);
-    color: var(--ink);
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--white);
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: var(--cream); }
-  ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+  ::selection { background: var(--cyan); color: var(--bg); }
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--cyan); border-radius: 2px; }
 
-  /* ── NAV ── */
+  /* ════════════════════════════════════
+     NAVBAR
+  ════════════════════════════════════ */
   .nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    padding: 0 40px;
-    height: 72px;
+    height: 68px;
+    padding: 0 48px;
     display: flex; align-items: center; justify-content: space-between;
-    background: rgba(250,248,245,0.9);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    transition: box-shadow 0.3s;
+    background: rgba(9,9,11,0.8);
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.4s, box-shadow 0.4s;
   }
-  .nav.scrolled { box-shadow: 0 2px 30px rgba(0,0,0,0.06); }
+  .nav.scrolled {
+    border-color: var(--border);
+    box-shadow: 0 1px 0 rgba(0,229,255,0.05), 0 4px 24px rgba(0,0,0,0.5);
+  }
+
   .nav-brand {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px; font-weight: 700; letter-spacing: 0.5px;
-    color: var(--ink); text-decoration: none;
-    display: flex; align-items: center; gap: 10px;
+    display: flex; align-items: center; gap: 12px;
+    text-decoration: none; cursor: pointer;
+    background: none; border: none;
   }
-  .nav-brand-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--gold); flex-shrink: 0;
+  .nav-brand-icon {
+    width: 34px; height: 34px;
+    border: 1.5px solid var(--cyan);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--cyan); font-size: 14px;
+    transition: all 0.3s;
+    box-shadow: 0 0 10px rgba(0,229,255,0.2);
   }
+  .nav-brand:hover .nav-brand-icon {
+    background: var(--cyan); color: var(--bg);
+    box-shadow: 0 0 20px rgba(0,229,255,0.4);
+  }
+  .nav-brand-text {
+    font-family: var(--font-display);
+    font-size: 22px; letter-spacing: 2px;
+    color: var(--white);
+    line-height: 1;
+  }
+  .nav-brand-text span { color: var(--cyan); }
+
   .nav-links {
-    display: flex; align-items: center; gap: 36px;
+    display: flex; align-items: center; gap: 6px;
     list-style: none;
   }
-  .nav-links a {
-    font-size: 13px; font-weight: 500; letter-spacing: 1.5px;
-    text-transform: uppercase; color: var(--ink-light);
-    text-decoration: none; transition: color 0.2s;
+  .nav-links button {
+    background: none; border: none; cursor: pointer;
+    padding: 8px 14px; border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--white-60);
+    transition: color 0.2s, background 0.2s;
     position: relative;
   }
-  .nav-links a::after {
-    content: ''; position: absolute; bottom: -3px; left: 0; right: 0;
-    height: 1px; background: var(--gold);
-    transform: scaleX(0); transition: transform 0.3s;
+  .nav-links button::after {
+    content: ''; position: absolute;
+    bottom: 2px; left: 14px; right: 14px;
+    height: 1px; background: var(--cyan);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.3s var(--ease-out);
   }
-  .nav-links a:hover { color: var(--ink); }
-  .nav-links a:hover::after { transform: scaleX(1); }
-  .nav-cta {
-    background: var(--ink); color: var(--white) !important;
-    padding: 10px 22px; border-radius: 2px;
-    font-size: 12px !important; letter-spacing: 2px !important;
-    transition: background 0.3s !important;
+  .nav-links button:hover { color: var(--white); }
+  .nav-links button:hover::after { transform: scaleX(1); }
+
+  .nav-cta-btn {
+    background: var(--cyan) !important;
+    color: var(--bg) !important;
+    padding: 10px 22px !important;
+    font-weight: 700 !important;
+    transition: all 0.3s !important;
   }
-  .nav-cta::after { display: none !important; }
-  .nav-cta:hover { background: var(--gold) !important; color: var(--ink) !important; }
+  .nav-cta-btn::after { display: none !important; }
+  .nav-cta-btn:hover {
+    background: var(--white) !important;
+    color: var(--bg) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 8px 24px rgba(0,229,255,0.3) !important;
+  }
+
   .nav-hamburger {
     display: none; flex-direction: column; gap: 5px;
-    cursor: pointer; background: none; border: none; padding: 4px;
+    background: none; border: none; cursor: pointer; padding: 4px;
   }
   .nav-hamburger span {
-    display: block; width: 24px; height: 1.5px; background: var(--ink);
+    display: block; width: 22px; height: 1.5px; background: var(--white);
     transition: all 0.3s;
   }
-  .mobile-menu {
-    display: none; position: fixed; top: 72px; left: 0; right: 0;
-    background: var(--white); z-index: 99;
-    border-bottom: 1px solid var(--border);
-    padding: 20px 40px;
-    flex-direction: column; gap: 20px;
-  }
-  .mobile-menu.open { display: flex; }
-  .mobile-menu a {
-    font-size: 14px; font-weight: 500; letter-spacing: 1px;
-    text-transform: uppercase; color: var(--ink-light); text-decoration: none;
-  }
-  .mobile-book-btn {
-    background: var(--ink); color: var(--white);
-    padding: 12px 24px; border: none; cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
-    border-radius: 2px; align-self: flex-start;
-    transition: background 0.3s;
-  }
-  .mobile-book-btn:hover { background: var(--gold); color: var(--ink); }
 
-  /* ── HERO ── */
+  /* Mobile menu */
+  .mobile-overlay {
+    display: none; position: fixed;
+    inset: 0; background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 98; opacity: 0; transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .mobile-overlay.open { opacity: 1; pointer-events: all; }
+  .mobile-drawer {
+    display: none; position: fixed;
+    top: 0; right: 0;
+    width: min(340px, 85vw); height: 100dvh;
+    background: var(--bg2);
+    border-left: 1px solid var(--border);
+    z-index: 99;
+    transform: translateX(100%);
+    transition: transform 0.4s var(--ease-out);
+    padding: 88px 32px 40px;
+    flex-direction: column; gap: 0;
+  }
+  .mobile-drawer.open { transform: translateX(0); }
+  .mobile-drawer button.mob-link {
+    display: flex; align-items: center; gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border);
+    background: none; border-top: none; border-left: none; border-right: none;
+    cursor: pointer; text-align: left; width: 100%;
+    font-family: var(--font-display);
+    font-size: 32px; letter-spacing: 2px;
+    color: var(--white);
+    transition: color 0.2s;
+  }
+  .mobile-drawer button.mob-link:hover { color: var(--cyan); }
+  .mob-num {
+    font-family: var(--font-body); font-size: 10px;
+    letter-spacing: 2px; color: var(--cyan);
+    min-width: 22px;
+  }
+  .mob-book-btn {
+    margin-top: 32px;
+    padding: 15px 24px;
+    background: var(--cyan); color: var(--bg);
+    border: none; cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 12px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; border-radius: var(--radius);
+    transition: all 0.3s;
+    display: flex; align-items: center; gap: 10px; justify-content: center;
+  }
+  .mob-book-btn:hover { background: var(--white); }
+  .mob-contact-info {
+    margin-top: auto;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .mob-contact-info a {
+    font-family: var(--font-serif);
+    font-size: 20px; font-style: italic;
+    color: var(--white-60); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .mob-contact-info a:hover { color: var(--cyan); }
+  .mob-contact-info span {
+    font-size: 11px; letter-spacing: 1.5px; color: var(--white-30);
+  }
+
+  /* ════════════════════════════════════
+     HERO
+  ════════════════════════════════════ */
   .hero {
     min-height: 100vh;
-    display: flex; align-items: center;
-    padding: 100px 40px 60px;
+    padding: 88px 48px 80px;
+    background: var(--bg);
     position: relative; overflow: hidden;
-    background: var(--cream);
+    display: flex; flex-direction: column; justify-content: center;
   }
-  .hero-bg-text {
+
+  /* Noise texture */
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  /* Glow blob */
+  .hero-glow {
+    position: absolute; top: -100px; right: -100px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,229,255,0.06) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+  .hero-glow-2 {
+    position: absolute; bottom: -200px; left: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(0,229,255,0.04) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* Grid lines */
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none; z-index: 0;
+  }
+
+  /* BG word */
+  .hero-bg-word {
     position: absolute; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(120px, 18vw, 280px);
-    font-weight: 700; letter-spacing: -5px;
-    color: rgba(201,168,76,0.06);
-    white-space: nowrap; pointer-events: none;
-    user-select: none; z-index: 0;
+    font-family: var(--font-display);
+    font-size: clamp(100px, 20vw, 280px);
+    letter-spacing: 10px;
+    color: rgba(255,255,255,0.015);
+    white-space: nowrap;
+    pointer-events: none; user-select: none;
+    z-index: 0;
   }
+
   .hero-inner {
     max-width: 1200px; margin: 0 auto; width: 100%;
     display: grid; grid-template-columns: 1fr 1fr;
-    gap: 80px; align-items: center; position: relative; z-index: 1;
+    gap: 80px; align-items: center;
+    position: relative; z-index: 1;
   }
-  .hero-label {
+
+  /* ── LEFT ── */
+  .hero-eyebrow {
     display: inline-flex; align-items: center; gap: 12px;
-    margin-bottom: 28px;
-    font-size: 11px; font-weight: 600; letter-spacing: 3px;
-    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 24px;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 4px; text-transform: uppercase;
+    color: var(--cyan);
   }
-  .hero-label-line {
-    width: 40px; height: 1px; background: var(--gold);
+  .hero-eyebrow-line { width: 36px; height: 1px; background: var(--cyan); }
+  .hero-eyebrow-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--cyan);
+    animation: pulseDot 2s ease-in-out infinite;
   }
+  @keyframes pulseDot {
+    0%,100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.6); opacity: 0.5; }
+  }
+
   .hero-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(52px, 7vw, 90px);
-    font-weight: 700; line-height: 1.0;
-    color: var(--ink); margin-bottom: 24px;
+    font-family: var(--font-display);
+    font-size: clamp(72px, 10vw, 140px);
+    line-height: 0.92;
+    letter-spacing: 3px;
+    color: var(--white);
+    margin-bottom: 8px;
   }
-  .hero-title em { font-style: italic; color: var(--gold); }
-  .hero-subtitle {
-    font-size: 16px; line-height: 1.8; color: var(--ink-muted);
-    margin-bottom: 44px; max-width: 420px; font-weight: 300;
+  .hero-title-sub {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 5vw, 64px);
+    line-height: 1;
+    letter-spacing: 8px;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--white-30);
+    margin-bottom: 32px;
   }
-  .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+
+  .hero-desc {
+    font-family: var(--font-serif);
+    font-size: 18px; font-style: italic;
+    line-height: 1.8; color: var(--white-60);
+    font-weight: 300; margin-bottom: 44px;
+    max-width: 440px;
+  }
+  .hero-desc strong { font-style: normal; color: var(--white); font-weight: 600; }
+
+  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin-bottom: 56px; }
+
   .btn-primary {
-    background: var(--ink); color: var(--white);
-    padding: 15px 32px; border: none; border-radius: 2px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px; font-weight: 600; letter-spacing: 2px;
-    text-transform: uppercase; cursor: pointer;
-    transition: all 0.3s; text-decoration: none;
     display: inline-flex; align-items: center; gap: 10px;
+    padding: 15px 30px;
+    background: var(--cyan); color: var(--bg);
+    border: none; border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 11px; font-weight: 700; letter-spacing: 2.5px;
+    text-transform: uppercase; cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s var(--ease-out);
+    box-shadow: 0 0 0 rgba(0,229,255,0);
   }
-  .btn-primary:hover { background: var(--gold); color: var(--ink); transform: translateY(-2px); }
+  .btn-primary:hover {
+    background: var(--white);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,229,255,0.3);
+  }
   .btn-primary svg { transition: transform 0.3s; }
   .btn-primary:hover svg { transform: translateX(4px); }
+
   .btn-ghost {
-    background: transparent; color: var(--ink);
-    padding: 14px 28px; border: 1px solid var(--border);
-    border-radius: 2px; font-family: 'DM Sans', sans-serif;
-    font-size: 12px; font-weight: 500; letter-spacing: 1.5px;
-    text-transform: uppercase; cursor: pointer; transition: all 0.3s;
-    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 28px;
+    background: transparent; color: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 11px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; cursor: pointer; text-decoration: none;
+    transition: all 0.3s;
   }
-  .btn-ghost:hover { border-color: var(--ink); background: var(--ink); color: var(--white); }
+  .btn-ghost:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    background: var(--cyan-subtle);
+  }
+
+  /* Stats */
   .hero-stats {
-    display: flex; gap: 40px; margin-top: 56px;
-    padding-top: 40px; border-top: 1px solid var(--border);
+    display: flex; gap: 0;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
   }
-  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat {
+    flex: 1; padding-right: 32px;
+    border-right: 1px solid var(--border);
+    margin-right: 32px;
+  }
+  .stat:last-child { border-right: none; margin-right: 0; padding-right: 0; }
   .stat-num {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 38px; font-weight: 700; color: var(--ink); line-height: 1;
+    font-family: var(--font-display);
+    font-size: 44px; letter-spacing: 1px;
+    color: var(--white); line-height: 1;
+    margin-bottom: 6px;
   }
-  .stat-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-muted); }
+  .stat-num span { color: var(--cyan); }
+  .stat-label {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--white-30);
+  }
+
+  /* ── RIGHT VISUAL ── */
   .hero-visual {
     position: relative; display: flex;
-    justify-content: center; align-items: center;
+    align-items: center; justify-content: center;
+    height: 500px;
   }
-  .hero-logo-frame {
-    width: 420px; height: 420px;
+
+  /* Outer ring */
+  .ring-outer {
+    position: absolute;
+    width: 400px; height: 400px;
+    border: 1px solid var(--border-cyan);
+    border-radius: 50%;
+    animation: rotateCW 40s linear infinite;
+  }
+  .ring-inner {
+    position: absolute;
+    width: 320px; height: 320px;
+    border: 1px dashed rgba(0,229,255,0.08);
+    border-radius: 50%;
+    animation: rotateCCW 25s linear infinite;
+  }
+  @keyframes rotateCW  { to { transform: rotate(360deg); } }
+  @keyframes rotateCCW { to { transform: rotate(-360deg); } }
+
+  /* Orbiting dots */
+  .orbit { position: absolute; width: 400px; height: 400px; animation: rotateCW 15s linear infinite; }
+  .orbit-dot {
+    position: absolute; top: 50%; left: 50%;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--cyan); margin: -3px;
+    box-shadow: 0 0 8px var(--cyan);
+  }
+
+  /* Logo card */
+  .hero-card {
+    width: 270px; height: 270px;
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 4px; background: var(--white);
+    border-radius: 4px;
     display: flex; align-items: center; justify-content: center;
-    position: relative; overflow: hidden;
-    box-shadow: var(--shadow-lg);
+    position: relative; z-index: 2;
+    box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.05);
+    animation: floatY 7s ease-in-out infinite;
+    overflow: hidden;
   }
-  .hero-logo-frame::before {
-    content: '';
-    position: absolute; inset: 12px;
-    border: 1px solid var(--gold-light); border-radius: 2px;
-    pointer-events: none;
+  .hero-card::before {
+    content: ''; position: absolute;
+    inset: 12px; border: 1px solid var(--border-cyan);
+    border-radius: 2px; pointer-events: none;
+    opacity: 0.5;
   }
-  .hero-logo-frame img {
-    width: 70%; height: 70%; object-fit: contain;
-    animation: float 8s ease-in-out infinite;
+  /* Scan line animation */
+  .hero-card::after {
+    content: ''; position: absolute;
+    left: 0; right: 0; height: 2px;
+    background: linear-gradient(to right, transparent, var(--cyan), transparent);
+    top: -4px;
+    animation: scanLine 4s ease-in-out infinite;
+    opacity: 0.6;
   }
-  .hero-logo-placeholder {
-    width: 70%; height: 70%;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 12px;
+  @keyframes scanLine {
+    0%   { top: -4px; opacity: 0; }
+    10%  { opacity: 0.6; }
+    90%  { opacity: 0.6; }
+    100% { top: calc(100% + 4px); opacity: 0; }
   }
-  .hero-logo-placeholder svg { opacity: 0.15; }
-  .hero-logo-placeholder span {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 28px; font-weight: 700; color: var(--ink);
-    text-align: center; line-height: 1.2;
-  }
-  .hero-logo-placeholder small {
-    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
-    color: var(--gold);
-  }
-  @keyframes float {
+  @keyframes floatY {
     0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-12px); }
+    50%     { transform: translateY(-16px); }
   }
-  .hero-accent-1 {
-    position: absolute; top: -20px; right: -20px;
-    width: 80px; height: 80px;
-    border: 1px solid var(--gold-light); border-radius: 50%;
+
+  .hero-card-inner {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 12px; text-align: center;
+    padding: 24px;
   }
-  .hero-accent-2 {
-    position: absolute; bottom: 30px; left: -30px;
-    width: 120px; height: 120px;
-    border: 1px solid var(--border); border-radius: 50%;
+  .hero-card-icon {
+    width: 64px; height: 64px;
+    display: flex; align-items: center; justify-content: center;
   }
-  .hero-tag {
-    position: absolute; bottom: -16px; right: 30px;
-    background: var(--white); border: 1px solid var(--border);
-    padding: 12px 20px; border-radius: 2px; box-shadow: var(--shadow);
+  .hero-card-name {
+    font-family: var(--font-display);
+    font-size: 28px; letter-spacing: 3px;
+    color: var(--white); line-height: 1;
+  }
+  .hero-card-name span { color: var(--cyan); }
+  .hero-card-sub {
+    font-size: 9px; letter-spacing: 4px;
+    text-transform: uppercase; color: var(--white-30);
+    border-top: 1px solid var(--border);
+    padding-top: 10px; margin-top: 2px; width: 100%;
+  }
+  .hero-card-artist {
+    font-family: var(--font-serif);
+    font-size: 13px; font-style: italic;
+    color: var(--cyan-dim); margin-top: 2px;
+  }
+
+  /* Floating badges */
+  .hero-badge-1 {
+    position: absolute; bottom: 60px; right: -20px;
+    background: var(--bg2); border: 1px solid var(--border);
+    padding: 10px 16px; border-radius: 2px;
+    box-shadow: var(--shadow);
     display: flex; align-items: center; gap: 10px;
+    animation: floatY 5s ease-in-out infinite 1s;
+    z-index: 3;
   }
-  .hero-tag-dot { width: 8px; height: 8px; border-radius: 50%; background: #4caf50; flex-shrink: 0; }
-  .hero-tag-text { font-size: 12px; font-weight: 500; letter-spacing: 0.5px; }
+  .hero-badge-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #22c55e;
+    animation: pulseDot 2s ease-in-out infinite;
+  }
+  .hero-badge-text { font-size: 11px; font-weight: 600; color: var(--white); letter-spacing: 0.5px; }
 
-  /* ── SECTION COMMONS ── */
-  .section { padding: 100px 40px; }
+  .hero-badge-2 {
+    position: absolute; top: 60px; right: -32px;
+    background: var(--cyan); color: var(--bg);
+    padding: 8px 14px; border-radius: 2px;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase;
+    box-shadow: var(--glow);
+    animation: floatY 5s ease-in-out infinite 0.5s;
+    z-index: 3;
+  }
+
+  /* Scroll indicator */
+  .scroll-indicator {
+    position: absolute; bottom: 32px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    z-index: 1;
+  }
+  .scroll-line {
+    width: 1px; height: 48px;
+    background: linear-gradient(to bottom, var(--cyan), transparent);
+    animation: floatY 2.5s ease-in-out infinite;
+  }
+  .scroll-text {
+    font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--white-30);
+  }
+
+  /* ════════════════════════════════════
+     SECTION COMMONS
+  ════════════════════════════════════ */
+  .section { padding: 110px 48px; }
   .section-inner { max-width: 1200px; margin: 0 auto; }
-  .section-header { margin-bottom: 64px; }
-  .section-label {
-    display: inline-flex; align-items: center; gap: 12px;
-    font-size: 11px; font-weight: 600; letter-spacing: 3px;
-    text-transform: uppercase; color: var(--gold); margin-bottom: 16px;
+  .sec-label {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 10px; font-weight: 700; letter-spacing: 4px;
+    text-transform: uppercase; color: var(--cyan);
+    margin-bottom: 14px;
   }
-  .section-label-line { width: 30px; height: 1px; background: var(--gold); }
-  .section-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(36px, 5vw, 56px); font-weight: 700;
-    color: var(--ink); line-height: 1.1;
+  .sec-label-line { width: 28px; height: 1px; background: var(--cyan); }
+  .sec-title {
+    font-family: var(--font-display);
+    font-size: clamp(44px, 6vw, 80px);
+    letter-spacing: 2px; color: var(--white); line-height: 0.95;
   }
-  .section-title em { font-style: italic; color: var(--gold); }
-  .section-desc { font-size: 16px; color: var(--ink-muted); line-height: 1.8; margin-top: 16px; max-width: 500px; font-weight: 300; }
+  .sec-title-outline {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+  }
+  .sec-desc {
+    font-family: var(--font-serif);
+    font-size: 17px; font-style: italic;
+    color: var(--white-60); line-height: 1.8; font-weight: 300;
+  }
 
-  /* ── SERVICES ── */
-  .services { background: var(--white); }
+  /* Divider */
+  .divider {
+    width: 100%; height: 1px;
+    background: linear-gradient(to right, transparent, var(--border-cyan), transparent);
+  }
+
+  /* ════════════════════════════════════
+     SERVICES
+  ════════════════════════════════════ */
+  .services-section { background: var(--bg2); }
+  .services-header {
+    display: flex; justify-content: space-between;
+    align-items: flex-end; gap: 32px;
+    margin-bottom: 64px; flex-wrap: wrap;
+  }
   .services-grid {
     display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 2px; border: 1px solid var(--border);
+    border: 1px solid var(--border);
     border-radius: 4px; overflow: hidden;
   }
-  .service-card {
+  .svc-card {
     padding: 40px 36px;
-    background: var(--white);
     border-right: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
-    transition: all 0.35s;
-    cursor: default; position: relative; overflow: hidden;
+    background: var(--bg2);
+    position: relative; overflow: hidden;
+    cursor: default; transition: background 0.4s var(--ease-out);
   }
-  .service-card:last-child { border-right: none; }
-  .service-card:nth-child(3n) { border-right: none; }
-  .service-card:hover { background: var(--ink); }
-  .service-card::before {
-    content: '';
-    position: absolute; bottom: 0; left: 0;
-    width: 100%; height: 2px;
-    background: var(--gold);
+  .svc-card:nth-child(3n) { border-right: none; }
+  .svc-card:nth-child(n+4) { border-bottom: none; }
+  .svc-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(to right, var(--cyan), var(--cyan-dim));
     transform: scaleX(0); transform-origin: left;
-    transition: transform 0.4s;
+    transition: transform 0.5s var(--ease-out);
   }
-  .service-card:hover::before { transform: scaleX(1); }
-  .service-num {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 48px; font-weight: 300;
-    color: var(--gold-light); line-height: 1;
-    margin-bottom: 20px; transition: color 0.35s;
+  .svc-card::after {
+    content: ''; position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(0,229,255,0.05) 0%, transparent 70%);
+    opacity: 0; transition: opacity 0.4s;
   }
-  .service-card:hover .service-num { color: rgba(201,168,76,0.4); }
-  .service-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px; font-weight: 600;
-    color: var(--ink); margin-bottom: 12px; transition: color 0.35s;
+  .svc-card:hover { background: var(--surface); }
+  .svc-card:hover::before { transform: scaleX(1); }
+  .svc-card:hover::after { opacity: 1; }
+  .svc-num {
+    font-family: var(--font-display);
+    font-size: 56px; letter-spacing: 1px;
+    color: rgba(255,255,255,0.04); line-height: 1;
+    margin-bottom: 20px; transition: color 0.4s;
+    position: relative; z-index: 1;
   }
-  .service-card:hover .service-name { color: var(--white); }
-  .service-desc {
-    font-size: 14px; line-height: 1.7; color: var(--ink-muted);
-    font-weight: 300; transition: color 0.35s;
+  .svc-card:hover .svc-num { color: rgba(0,229,255,0.1); }
+  .svc-name {
+    font-family: var(--font-head);
+    font-size: 18px; font-weight: 700;
+    color: var(--white); margin-bottom: 12px;
+    transition: color 0.3s;
+    position: relative; z-index: 1;
   }
-  .service-card:hover .service-desc { color: rgba(255,255,255,0.6); }
+  .svc-card:hover .svc-name { color: var(--cyan); }
+  .svc-desc {
+    font-family: var(--font-serif);
+    font-size: 15px; font-style: italic;
+    color: var(--white-30); line-height: 1.7; font-weight: 300;
+    transition: color 0.3s;
+    position: relative; z-index: 1;
+  }
+  .svc-card:hover .svc-desc { color: var(--white-60); }
+  .svc-arrow {
+    position: absolute; bottom: 20px; right: 24px;
+    font-size: 18px; color: var(--cyan);
+    opacity: 0; transform: translateY(4px);
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 1;
+  }
+  .svc-card:hover .svc-arrow { opacity: 1; transform: translateY(0); }
 
-  /* ── GALLERY ── */
-  .gallery { background: var(--cream); }
-  .gallery-track-wrapper {
-    position: relative; display: flex;
-    align-items: center; gap: 16px;
+  /* Tag strip */
+  .svc-strip {
+    display: flex; gap: 24px; align-items: center;
+    margin-top: 48px; padding-top: 32px;
+    border-top: 1px solid var(--border);
+    overflow-x: auto; scrollbar-width: none; white-space: nowrap;
   }
+  .svc-strip::-webkit-scrollbar { display: none; }
+  .svc-tag {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--white-30); flex-shrink: 0;
+  }
+  .svc-tag-sep {
+    width: 3px; height: 3px; border-radius: 50%;
+    background: var(--cyan); flex-shrink: 0; opacity: 0.6;
+  }
+
+  /* ════════════════════════════════════
+     GALLERY
+  ════════════════════════════════════ */
+  .gallery-section { background: var(--bg); }
+  .gallery-header {
+    display: flex; justify-content: space-between;
+    align-items: flex-end; gap: 24px; margin-bottom: 48px;
+    flex-wrap: wrap;
+  }
+  .gallery-controls {
+    display: flex; align-items: center; gap: 14px; flex-shrink: 0;
+  }
+  .gal-nav {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--white-60); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s;
+  }
+  .gal-nav:hover:not(:disabled) {
+    background: var(--cyan-subtle);
+    border-color: var(--border-cyan);
+    color: var(--cyan);
+    box-shadow: 0 0 12px rgba(0,229,255,0.15);
+  }
+  .gal-nav:disabled { opacity: 0.2; cursor: not-allowed; }
+  .gal-counter {
+    font-family: var(--font-display);
+    font-size: 20px; letter-spacing: 2px; color: var(--white);
+    min-width: 68px; text-align: center;
+  }
+  .gal-counter span { color: var(--white-30); margin: 0 3px; font-weight: 300; }
+
   .gallery-track {
-    display: flex; gap: 16px; overflow-x: auto;
-    scroll-behavior: smooth; scrollbar-width: none;
-    padding: 8px 0; flex: 1;
+    display: flex; gap: 16px;
+    overflow-x: auto; scroll-behavior: smooth;
+    scrollbar-width: none; padding: 8px 0 16px;
     scroll-snap-type: x mandatory;
   }
   .gallery-track::-webkit-scrollbar { display: none; }
-  .gallery-card {
+
+  .gal-card {
     flex: 0 0 320px; height: 400px;
     border-radius: 4px; overflow: hidden;
-    background: var(--white); border: 1px solid var(--border);
+    background: var(--surface);
+    border: 1px solid var(--border);
     position: relative; cursor: pointer;
-    transition: all 0.3s; scroll-snap-align: start;
+    transition: all 0.35s var(--ease-out);
+    scroll-snap-align: start;
   }
-  .gallery-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--gold-light); }
-  .gallery-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
-  .gallery-card:hover img { transform: scale(1.04); }
-  .gallery-card-caption {
+  .gal-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--border-cyan);
+    box-shadow: var(--shadow-lg), 0 0 30px rgba(0,229,255,0.08);
+  }
+  .gal-card.active {
+    border-color: var(--cyan) !important;
+    box-shadow: 0 0 0 2px rgba(0,229,255,0.15), var(--shadow-lg) !important;
+  }
+  .gal-placeholder {
+    width: 100%; height: 100%;
+    background: var(--surface2);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 14px;
+    color: var(--white-30);
+  }
+  .gal-placeholder span {
+    font-family: var(--font-head);
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 1px; color: var(--white-30);
+  }
+  .gal-overlay {
     position: absolute; bottom: 0; left: 0; right: 0;
-    padding: 20px 20px 18px;
-    background: linear-gradient(transparent, rgba(26,26,26,0.85));
-    transform: translateY(100%); transition: transform 0.35s;
+    padding: 24px 20px 18px;
+    background: linear-gradient(transparent, rgba(9,9,11,0.92));
+    transform: translateY(100%);
+    transition: transform 0.4s var(--ease-out);
   }
-  .gallery-card:hover .gallery-card-caption { transform: translateY(0); }
-  .gallery-card-title { font-size: 15px; font-weight: 500; color: var(--white); letter-spacing: 0.5px; }
-  .gallery-card-placeholder {
-    width: 100%; height: 100%; display: flex;
-    flex-direction: column; align-items: center; justify-content: center;
-    gap: 12px; background: var(--pearl);
-  }
-  .gallery-card-placeholder span { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-muted); }
-  .gallery-nav-btn {
-    width: 44px; height: 44px; border-radius: 50%;
-    background: var(--white); border: 1px solid var(--border);
-    color: var(--ink); cursor: pointer; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px; transition: all 0.3s; box-shadow: var(--shadow);
-  }
-  .gallery-nav-btn:hover { background: var(--ink); color: var(--white); border-color: var(--ink); }
-  .gallery-thumbnails {
-    display: flex; gap: 8px; margin-top: 24px;
-    overflow-x: auto; scrollbar-width: none; padding-bottom: 4px;
-  }
-  .gallery-thumbnails::-webkit-scrollbar { display: none; }
-  .gallery-thumb {
-    flex: 0 0 56px; height: 56px; border-radius: 3px;
-    overflow: hidden; cursor: pointer;
-    border: 1.5px solid transparent; transition: all 0.3s; opacity: 0.5;
-  }
-  .gallery-thumb.active { border-color: var(--gold); opacity: 1; }
-  .gallery-thumb:hover { opacity: 0.8; }
-  .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .gallery-thumb-placeholder { width: 100%; height: 100%; background: var(--pearl); }
-  .gallery-counter { margin-top: 20px; font-size: 12px; letter-spacing: 2px; color: var(--ink-muted); }
+  .gal-card:hover .gal-overlay { transform: translateY(0); }
+  .gal-style { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--cyan); font-weight: 700; margin-bottom: 4px; }
+  .gal-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: var(--white); }
 
-  /* ── CONTACT ── */
-  .contact { background: var(--white); }
-  .contact-grid {
+  .gallery-thumbs {
+    display: flex; gap: 8px; margin-top: 20px;
+    overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
+  }
+  .gallery-thumbs::-webkit-scrollbar { display: none; }
+  .gal-thumb {
+    flex: 0 0 52px; height: 52px;
+    border-radius: 3px; overflow: hidden;
+    cursor: pointer; border: 1.5px solid transparent;
+    opacity: 0.35; transition: all 0.25s;
+    background: var(--surface2); padding: 0;
+  }
+  .gal-thumb:hover { opacity: 0.65; border-color: var(--border-cyan); }
+  .gal-thumb.active { border-color: var(--cyan); opacity: 1; box-shadow: 0 0 8px rgba(0,229,255,0.2); }
+  .gal-thumb-inner { width: 100%; height: 100%; background: var(--surface2); }
+
+  /* ════════════════════════════════════
+     ARTIST SECTION
+  ════════════════════════════════════ */
+  .artist-section {
+    background: var(--bg2);
+    padding: 100px 48px;
+  }
+  .artist-inner {
+    max-width: 1200px; margin: 0 auto;
     display: grid; grid-template-columns: 1fr 1fr;
+    gap: 80px; align-items: center;
+  }
+  .artist-img-frame {
+    aspect-ratio: 3/4; max-width: 360px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px; overflow: hidden;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+  }
+  .artist-img-frame::before {
+    content: ''; position: absolute;
+    inset: 14px; border: 1px solid var(--border-cyan);
+    border-radius: 2px; pointer-events: none; z-index: 1; opacity: 0.5;
+  }
+  .artist-placeholder {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 16px;
+  }
+  .artist-placeholder span {
+    font-family: var(--font-display);
+    font-size: 20px; letter-spacing: 3px;
+    color: var(--white-30);
+  }
+  .artist-corner {
+    position: absolute;
+    width: 20px; height: 20px;
+  }
+  .artist-corner-tl { top: 8px; left: 8px; border-top: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
+  .artist-corner-tr { top: 8px; right: 8px; border-top: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
+  .artist-corner-bl { bottom: 8px; left: 8px; border-bottom: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
+  .artist-corner-br { bottom: 8px; right: 8px; border-bottom: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
+
+  .artist-content { display: flex; flex-direction: column; gap: 0; }
+  .artist-pre {
+    font-size: 10px; font-weight: 700; letter-spacing: 4px;
+    text-transform: uppercase; color: var(--cyan); margin-bottom: 16px;
+  }
+  .artist-name {
+    font-family: var(--font-display);
+    font-size: clamp(52px, 7vw, 80px); letter-spacing: 2px;
+    color: var(--white); line-height: 0.9; margin-bottom: 6px;
+  }
+  .artist-title {
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 4px; text-transform: uppercase;
+    color: var(--white-30); margin-bottom: 32px;
+  }
+  .artist-bio {
+    font-family: var(--font-serif);
+    font-size: 17px; font-style: italic;
+    line-height: 1.8; color: var(--white-60);
+    font-weight: 300; margin-bottom: 40px;
+    border-left: 2px solid var(--cyan);
+    padding-left: 20px;
+  }
+  .artist-skills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 36px; }
+  .artist-skill {
+    padding: 6px 14px;
+    background: var(--cyan-subtle);
+    border: 1px solid var(--border-cyan);
+    border-radius: 100px;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--cyan);
+  }
+  .artist-social {
+    display: inline-flex; align-items: center; gap: 10px;
+    text-decoration: none; color: var(--white-60);
+    font-size: 13px; font-weight: 600; letter-spacing: 1px;
+    transition: color 0.2s;
+    border: 1px solid var(--border);
+    padding: 12px 20px; border-radius: var(--radius);
+  }
+  .artist-social:hover { color: var(--cyan); border-color: var(--border-cyan); background: var(--cyan-subtle); }
+
+  /* ════════════════════════════════════
+     CONTACT
+  ════════════════════════════════════ */
+  .contact-section { background: var(--bg); }
+  .contact-grid {
+    display: grid; grid-template-columns: 1fr 1.1fr;
     gap: 80px; align-items: start;
   }
-  .contact-cards { display: flex; flex-direction: column; gap: 16px; }
-  .contact-card {
-    padding: 24px 28px; border: 1px solid var(--border);
-    border-radius: 4px; display: flex; gap: 20px;
-    align-items: flex-start; transition: all 0.3s; background: var(--cream);
+  .contact-cards { display: flex; flex-direction: column; gap: 12px; }
+  .c-card {
+    display: flex; gap: 18px; align-items: flex-start;
+    padding: 22px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transition: all 0.3s var(--ease-out);
   }
-  .contact-card:hover { border-color: var(--gold-light); box-shadow: var(--shadow); background: var(--white); }
-  .contact-card-icon {
-    width: 44px; height: 44px; border-radius: 3px;
-    background: var(--ink); color: var(--white);
+  .c-card:hover {
+    background: var(--surface2);
+    border-color: var(--border-cyan);
+    transform: translateX(4px);
+    box-shadow: -4px 0 0 var(--cyan);
+  }
+  .c-icon {
+    width: 42px; height: 42px; border-radius: var(--radius);
+    background: var(--cyan-subtle); border: 1px solid var(--border-cyan);
     display: flex; align-items: center; justify-content: center;
-    font-size: 18px; flex-shrink: 0;
+    color: var(--cyan); flex-shrink: 0;
     transition: background 0.3s;
   }
-  .contact-card:hover .contact-card-icon { background: var(--gold); color: var(--ink); }
-  .contact-card-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 6px; }
-  .contact-card-value { font-size: 16px; font-weight: 500; color: var(--ink); text-decoration: none; display: block; transition: color 0.2s; }
-  .contact-card-value:hover { color: var(--gold); }
-  .contact-card-sub { font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
-  .map-block {
-    border-radius: 4px; overflow: hidden;
-    border: 1px solid var(--border); transition: border-color 0.3s;
+  .c-card:hover .c-icon { background: var(--cyan); color: var(--bg); }
+  .c-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--white-30); margin-bottom: 5px;
   }
-  .map-block:hover { border-color: var(--gold-light); box-shadow: var(--shadow); }
-  .map-block iframe { display: block; }
-  .map-link-row { padding: 14px 20px; background: var(--cream); display: flex; align-items: center; justify-content: space-between; }
-  .map-link-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-size: 12px; font-weight: 600; letter-spacing: 1.5px;
-    text-transform: uppercase; color: var(--ink); text-decoration: none;
+  .c-val {
+    font-size: 15px; font-weight: 600;
+    color: var(--white); text-decoration: none; display: block;
     transition: color 0.2s;
   }
-  .map-link-btn:hover { color: var(--gold); }
+  a.c-val:hover { color: var(--cyan); }
+  .c-sub { font-size: 12px; color: var(--white-30); margin-top: 3px; }
+  .c-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 8px; font-size: 10px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--cyan); text-decoration: none;
+    transition: gap 0.2s;
+  }
+  .c-link:hover { gap: 9px; }
 
-  /* ── FORM MODAL ── */
+  .map-wrap {
+    border: 1px solid var(--border); border-radius: 4px;
+    overflow: hidden; transition: border-color 0.3s;
+  }
+  .map-wrap:hover { border-color: var(--border-cyan); box-shadow: var(--glow); }
+  .map-wrap iframe { display: block; }
+  .map-footer {
+    padding: 14px 20px;
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 1px solid var(--border);
+  }
+  .map-status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--white-30); }
+  .map-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; animation: pulseDot 2s ease-in-out infinite; }
+  .map-dir {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--white-60); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .map-dir:hover { color: var(--cyan); }
+
+  /* ════════════════════════════════════
+     BOOKING MODAL
+  ════════════════════════════════════ */
   .modal-overlay {
     position: fixed; inset: 0; z-index: 200;
-    background: rgba(26,26,26,0.5);
-    backdrop-filter: blur(8px);
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(12px);
     display: flex; align-items: center; justify-content: center;
     padding: 20px;
-    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    opacity: 0; pointer-events: none; transition: opacity 0.35s;
   }
   .modal-overlay.open { opacity: 1; pointer-events: all; }
   .modal {
-    background: var(--white); max-width: 520px; width: 100%;
-    border-radius: 4px; padding: 48px;
-    position: relative; box-shadow: 0 40px 80px rgba(0,0,0,0.2);
-    transform: translateY(20px); transition: transform 0.3s;
-    max-height: 90vh; overflow-y: auto;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    max-width: 500px; width: 100%;
+    border-radius: 4px;
+    box-shadow: var(--shadow-lg), 0 0 60px rgba(0,229,255,0.05);
+    max-height: 90dvh; overflow-y: auto;
+    transform: translateY(24px) scale(0.97);
+    transition: transform 0.4s var(--ease-out);
+    position: relative;
   }
-  .modal-overlay.open .modal { transform: translateY(0); }
-  .modal-close {
-    position: absolute; top: 20px; right: 20px;
-    background: none; border: 1px solid var(--border);
-    width: 36px; height: 36px; border-radius: 2px;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    font-size: 18px; color: var(--ink-muted); transition: all 0.2s;
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+  /* Top cyan line */
+  .modal::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(to right, transparent, var(--cyan), transparent);
   }
-  .modal-close:hover { background: var(--ink); color: var(--white); border-color: var(--ink); }
-  .modal-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+
+  .modal-header { padding: 32px 36px 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .modal-label-top { font-size: 9px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--cyan); margin-bottom: 10px; }
   .modal-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 36px; font-weight: 700; color: var(--ink); margin-bottom: 32px; line-height: 1.1;
+    font-family: var(--font-display);
+    font-size: 32px; letter-spacing: 1px;
+    color: var(--white); line-height: 1.1;
   }
-  .form-field { margin-bottom: 20px; }
-  .form-field label { display: block; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 8px; }
-  .form-input {
-    width: 100%; padding: 13px 16px;
-    background: var(--cream); border: 1px solid var(--border);
-    border-radius: 2px; color: var(--ink);
-    font-family: 'DM Sans', sans-serif; font-size: 14px;
+  .modal-close-btn {
+    width: 36px; height: 36px; border-radius: var(--radius);
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--white-60); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; flex-shrink: 0; margin-top: 2px;
+  }
+  .modal-close-btn:hover { background: var(--white-10); color: var(--white); border-color: var(--white-30); }
+
+  .modal-steps { padding: 20px 36px 0; display: flex; align-items: center; gap: 10px; }
+  .m-step { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; letter-spacing: 1px; color: var(--white-30); transition: color 0.3s; }
+  .m-step.active { color: var(--white); }
+  .m-step-num { font-family: var(--font-display); font-size: 18px; letter-spacing: 1px; }
+  .m-step.active .m-step-num { color: var(--cyan); }
+  .m-step-line { flex: 1; height: 1px; background: var(--border); }
+
+  .modal-form { padding: 24px 36px 8px; display: flex; flex-direction: column; gap: 16px; }
+  .f-label { display: block; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--white-30); margin-bottom: 8px; }
+  .f-input {
+    width: 100%; padding: 12px 16px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); color: var(--white);
+    font-family: var(--font-body); font-size: 14px;
     transition: all 0.2s; outline: none;
   }
-  .form-input::placeholder { color: var(--ink-muted); }
-  .form-input:focus { background: var(--white); border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.1); }
-  .form-textarea { resize: vertical; min-height: 110px; }
-  .form-submit {
-    width: 100%; padding: 15px;
-    background: var(--ink); color: var(--white);
-    border: none; border-radius: 2px; cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px; font-weight: 600; letter-spacing: 2px;
-    text-transform: uppercase; margin-top: 8px;
-    transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;
-  }
-  .form-submit:hover { background: var(--gold); color: var(--ink); transform: translateY(-2px); }
-  .form-success {
-    padding: 16px; background: rgba(76,175,80,0.08);
-    border: 1px solid rgba(76,175,80,0.3); border-radius: 2px;
-    color: #2e7d32; font-size: 14px; font-weight: 500;
-    margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
-  }
-  .form-alt { text-align: center; margin-top: 20px; font-size: 13px; color: var(--ink-muted); }
-  .form-alt a { color: var(--gold); font-weight: 600; text-decoration: none; }
-  .form-alt a:hover { text-decoration: underline; }
+  .f-input::placeholder { color: var(--white-30); }
+  .f-input:focus { background: var(--surface2); border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(0,229,255,0.08); }
+  .f-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
 
-  /* ── FOOTER ── */
-  .footer {
-    background: var(--ink); color: var(--white);
-    padding: 60px 40px 30px;
+  .f-actions { display: flex; gap: 10px; margin-top: 4px; }
+  .f-back {
+    padding: 12px 20px; background: none;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    font-family: var(--font-body); font-size: 12px; font-weight: 600;
+    color: var(--white-30); cursor: pointer; transition: all 0.2s;
+    letter-spacing: 1px; text-transform: uppercase;
   }
-  .footer-inner {
-    max-width: 1200px; margin: 0 auto;
-    display: grid; grid-template-columns: 1.5fr 1fr 1fr;
-    gap: 60px; padding-bottom: 48px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+  .f-back:hover { border-color: var(--white-30); color: var(--white); }
+  .f-submit, .f-next {
+    flex: 1; padding: 13px 20px;
+    background: var(--cyan); color: var(--bg);
+    border: none; border-radius: var(--radius);
+    font-family: var(--font-body); font-size: 11px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+    transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;
   }
-  .footer-brand-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 26px; font-weight: 700; color: var(--white); margin-bottom: 12px;
+  .f-submit:hover, .f-next:hover { background: var(--white); }
+  .f-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .f-spinner {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid rgba(9,9,11,0.3); border-top-color: var(--bg);
+    animation: spin 0.7s linear infinite; display: block;
   }
-  .footer-brand-tag { font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.7; font-weight: 300; max-width: 260px; }
-  .footer-socials { display: flex; gap: 12px; margin-top: 28px; }
-  .footer-social {
-    width: 38px; height: 38px; border-radius: 2px;
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .f-success { padding: 32px 36px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; }
+  .f-success-icon {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: var(--cyan-subtle); border: 1px solid var(--border-cyan);
     display: flex; align-items: center; justify-content: center;
-    color: rgba(255,255,255,0.6); font-size: 16px; text-decoration: none;
+    color: var(--cyan); animation: scaleIn 0.5s var(--ease-out);
+  }
+  @keyframes scaleIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .f-success h3 { font-family: var(--font-display); font-size: 28px; letter-spacing: 1px; color: var(--white); }
+  .f-success p { font-family: var(--font-serif); font-size: 15px; font-style: italic; color: var(--white-60); line-height: 1.7; max-width: 300px; }
+  .f-success p strong { font-style: normal; color: var(--white); }
+  .f-wa-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px; background: #25D366; color: var(--white);
+    border-radius: var(--radius); font-size: 12px; font-weight: 700;
+    text-decoration: none; letter-spacing: 1px; text-transform: uppercase;
+    transition: all 0.3s; margin-top: 4px;
+  }
+  .f-wa-btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
+  .modal-footer { padding: 14px 36px 28px; text-align: center; font-size: 12px; color: var(--white-30); }
+  .modal-footer a { color: var(--cyan); text-decoration: none; font-weight: 600; }
+  .modal-footer a:hover { text-decoration: underline; }
+
+  /* ════════════════════════════════════
+     FOOTER
+  ════════════════════════════════════ */
+  .footer { background: var(--bg2); }
+
+  /* CTA band */
+  .footer-cta {
+    background: var(--cyan);
+    padding: 52px 48px;
+  }
+  .footer-cta-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 32px; flex-wrap: wrap;
+  }
+  .footer-cta-pre { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(9,9,11,0.5); margin-bottom: 8px; }
+  .footer-cta-title { font-family: var(--font-display); font-size: clamp(28px, 4vw, 44px); letter-spacing: 2px; color: var(--bg); line-height: 1; }
+  .footer-cta-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 15px 30px;
+    background: var(--bg); color: var(--cyan);
+    border-radius: var(--radius); text-decoration: none;
+    font-family: var(--font-body); font-size: 11px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase; white-space: nowrap;
+    transition: all 0.3s; flex-shrink: 0;
+  }
+  .footer-cta-btn:hover { background: var(--white); color: var(--bg); transform: translateY(-2px); }
+
+  .footer-main { padding: 64px 48px 0; }
+  .footer-grid {
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 60px; padding-bottom: 56px;
+    border-bottom: 1px solid var(--border);
+  }
+  .footer-brand-icon {
+    width: 40px; height: 40px;
+    border: 1.5px solid var(--cyan); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--cyan); margin-bottom: 16px;
+  }
+  .footer-brand-name { font-family: var(--font-display); font-size: 28px; letter-spacing: 3px; color: var(--white); margin-bottom: 4px; }
+  .footer-brand-name span { color: var(--cyan); }
+  .footer-brand-by { font-family: var(--font-serif); font-size: 13px; font-style: italic; color: var(--white-30); margin-bottom: 16px; }
+  .footer-brand-desc { font-size: 13px; line-height: 1.8; color: var(--white-30); font-weight: 300; max-width: 260px; }
+  .footer-socials { display: flex; gap: 10px; margin-top: 24px; }
+  .footer-social {
+    width: 36px; height: 36px; border-radius: var(--radius);
+    background: var(--white-05); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--white-60); text-decoration: none;
     transition: all 0.3s;
   }
-  .footer-social:hover { background: var(--gold); color: var(--ink); border-color: var(--gold); }
-  .footer-col-title { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+  .footer-social:hover { background: var(--cyan-subtle); border-color: var(--border-cyan); color: var(--cyan); }
+  .footer-col-title { font-size: 9px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cyan); margin-bottom: 20px; }
   .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-  .footer-links a { font-size: 14px; color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.2s; font-weight: 300; }
+  .footer-links a { font-size: 13px; color: var(--white-30); text-decoration: none; transition: color 0.2s; font-weight: 400; }
   .footer-links a:hover { color: var(--white); }
+  .footer-hours { display: flex; flex-direction: column; gap: 12px; }
+  .footer-hr {
+    display: flex; justify-content: space-between; gap: 12px;
+    font-size: 13px; color: var(--white-30);
+    padding-bottom: 12px; border-bottom: 1px solid var(--border);
+  }
+  .footer-hr-time { color: var(--white); font-weight: 500; }
+  .footer-open { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--cyan); font-weight: 700; opacity: 0.7; }
+
   .footer-bottom {
     max-width: 1200px; margin: 0 auto;
-    display: flex; justify-content: space-between; align-items: center;
-    padding-top: 28px; flex-wrap: wrap; gap: 12px;
+    padding: 24px 0; display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 12px;
   }
-  .footer-copy { font-size: 12px; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; }
-  .footer-dev a { font-size: 12px; color: var(--gold); text-decoration: none; font-weight: 500; }
-  .footer-dev a:hover { text-decoration: underline; }
+  .footer-copy { font-size: 11px; color: var(--white-30); letter-spacing: 0.3px; }
+  .footer-credit { font-size: 11px; color: var(--white-30); }
+  .footer-credit a { color: var(--cyan); text-decoration: none; font-weight: 600; }
+  .footer-credit a:hover { text-decoration: underline; }
 
-  /* ── RESPONSIVE ── */
-  @media (max-width: 968px) {
-    .nav { padding: 0 20px; }
+  /* ════════════════════════════════════
+     RESPONSIVE
+  ════════════════════════════════════ */
+  @media (max-width: 1024px) {
+    .hero-badge-2 { display: none; }
+    .hero-badge-1 { right: 0; }
+  }
+  @media (max-width: 960px) {
+    .nav { padding: 0 24px; }
     .nav-links { display: none; }
     .nav-hamburger { display: flex; }
-    .hero { padding: 90px 20px 60px; }
-    .hero-inner { grid-template-columns: 1fr; gap: 48px; text-align: center; }
-    .hero-visual { order: -1; }
-    .hero-logo-frame { width: 280px; height: 280px; }
+    .mobile-overlay { display: block; pointer-events: none; }
+    .mobile-overlay.open { pointer-events: all; }
+    .mobile-drawer { display: flex; }
+
+    .hero { padding: 90px 24px 72px; }
+    .hero-inner { grid-template-columns: 1fr; gap: 56px; text-align: center; }
+    .hero-visual { order: -1; height: 360px; }
+    .hero-card { width: 210px; height: 210px; }
+    .ring-outer { width: 300px; height: 300px; }
+    .ring-inner { width: 240px; height: 240px; }
+    .orbit { width: 300px; height: 300px; }
+    .hero-eyebrow { justify-content: center; }
+    .hero-desc { margin: 0 auto 44px; }
     .hero-actions { justify-content: center; }
     .hero-stats { justify-content: center; }
-    .hero-label { justify-content: center; }
-    .section { padding: 70px 20px; }
-    .services-grid { grid-template-columns: 1fr; }
-    .service-card { border-right: none; }
+    .hero-bg-word { display: none; }
+
+    .section { padding: 80px 24px; }
+    .services-header { flex-direction: column; align-items: flex-start; }
+    .services-grid { grid-template-columns: 1fr 1fr; }
+    .svc-card:nth-child(3n) { border-right: 1px solid var(--border); }
+    .svc-card:nth-child(2n) { border-right: none; }
+
+    .artist-section { padding: 80px 24px; }
+    .artist-inner { grid-template-columns: 1fr; gap: 48px; }
+    .artist-img-frame { max-width: 280px; margin: 0 auto; }
+
     .contact-grid { grid-template-columns: 1fr; gap: 48px; }
-    .footer-inner { grid-template-columns: 1fr; gap: 36px; }
-    .footer-bottom { justify-content: center; text-align: center; }
-    .hero-tag { display: none; }
-    .hero-bg-text { display: none; }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+    .footer-cta { padding: 40px 24px; }
+    .footer-main { padding: 56px 24px 0; }
   }
   @media (max-width: 600px) {
-    .gallery-card { flex: 0 0 260px; height: 320px; }
-    .section-title { font-size: 32px; }
-    .modal { padding: 32px 24px; }
+    .hero { padding: 88px 20px 64px; }
+    .hero-card { width: 180px; height: 180px; }
+    .ring-outer { width: 260px; height: 260px; }
+    .ring-inner { width: 200px; height: 200px; }
+    .orbit { width: 260px; height: 260px; }
+    .section { padding: 64px 20px; }
+    .services-grid { grid-template-columns: 1fr; }
+    .svc-card { border-right: none !important; }
+    .gal-card { flex: 0 0 260px; height: 320px; }
+    .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+    .footer-bottom { justify-content: center; text-align: center; }
+    .modal-header, .modal-form, .modal-footer, .f-success { padding-left: 24px; padding-right: 24px; }
+    .modal-steps { padding-left: 24px; padding-right: 24px; }
   }
 `;
 
-// ─── DATA ───────────────────────────────────────────────────────────────────
+/* ════════════════════════════════════════════════════════
+   DATA
+════════════════════════════════════════════════════════ */
+const PHONE_RAW     = "+919673340204";
+const PHONE_DISPLAY = "+91 96733 40204";
+const WA_LINK       = `https://wa.me/919673340204?text=${encodeURIComponent("Hello! I'm interested in getting a tattoo at Inkfinity Tattoo Studio. 🎨")}`;
+const MAP_LINK      = "https://www.google.com/maps/search/%E0%A4%87%E0%A4%82%E0%A4%95%E0%A4%AB%E0%A4%BF%E0%A4%A8%E0%A4%BF%E0%A4%9F%E0%A5%80+%E0%A4%9F%E0%A5%88%E0%A4%9F%E0%A5%82+%E0%A4%B8%E0%A5%8D%E0%A4%9F%E0%A5%82%E0%A4%A1%E0%A4%BF%E0%A4%AF%E0%A5%8B/@18.4535,73.856,17z";
+const MAP_EMBED     = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.2835667539824!2d73.85341007524658!3d18.453508982617116!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2eb5b9e2fc7a1%3A0x0!2z4AQH4ASf4AS-4ASV4AS-4ASo4AS-4ASf4AS%2B4ASZ4ASwIOCkn-CkqOCkuOCljeCkleCmiyDgpJ_gpLLgpJXgpKo!5e0!3m2!1shi!2sin!4v1709100000000";
+const INSTAGRAM     = "https://www.instagram.com/inkfinity_tattoostudios";
+
 const SERVICES = [
-  { num: "01", name: "Custom Designs", desc: "Unique artworks created exclusively for you — tailored to your vision, body placement, and personality." },
-  { num: "02", name: "Realism & Portraits", desc: "Hyper-realistic portraits, animal studies, and detailed illustrative work with stunning depth and precision." },
-  { num: "03", name: "Traditional & Neo-Trad", desc: "Bold lines, rich colors, and timeless imagery rooted in the golden age of tattooing, with a modern twist." },
-  { num: "04", name: "Blackwork & Dotwork", desc: "Striking geometric patterns, mandalas, and ornamental blackwork that commands attention." },
-  { num: "05", name: "Script & Lettering", desc: "From fine script to bold typography — meaningful words rendered with artistry and permanence." },
-  { num: "06", name: "Cover-ups & Reworks", desc: "Transform or reimagine existing tattoos with skilled artistry and clever design solutions." },
+  { num: "01", name: "Custom Designs",      desc: "Bespoke artwork created exclusively for you — from first sketch to final needle, your vision guides everything." },
+  { num: "02", name: "Realism & Portraits", desc: "Hyper-realistic portraits, wildlife, and figure work with cinematic depth and stunning photographic precision." },
+  { num: "03", name: "Blackwork & Dotwork", desc: "Striking geometric patterns, mandalas, and ornamental blackwork rendered with obsessive detail and care." },
+  { num: "04", name: "Traditional & Trad+", desc: "Bold outlines, rich colour fills, and timeless imagery with a modern twist — the classics, elevated." },
+  { num: "05", name: "Script & Lettering",  desc: "From delicate fine-line scripts to bold statement typography — words made permanent with artistry." },
+  { num: "06", name: "Cover-ups & Reworks", desc: "Transform ageing or unwanted tattoos with clever design solutions and expert application technique." },
 ];
 
 const IMAGES = [
-  { id: 1, src: "/assets/tattoo1.png", title: "Rose Tattoo" },
-  { id: 2, src: "/assets/tattoo2.png", title: "Dragon Style" },
-  { id: 3, src: "/assets/tattoo3.png", title: "Buddhist Art" },
-  { id: 4, src: "/assets/tattoo4.png", title: "Architecture" },
-  { id: 5, src: "/assets/tattoo5.png", title: "Geometric" },
-  { id: 6, src: "/assets/tattoo6.png", title: "Rider Tattoo" },
-  { id: 7, src: "/assets/tattoo7.png", title: "Shree Ram" },
-  { id: 8, src: "/assets/tattoo8.png", title: "Mahadev" },
-  { id: 9, src: "/assets/tattoo9.png", title: "Anime Art" },
-  { id: 10, src: "/assets/tattoo10.png", title: "Evil Eye" },
-  { id: 11, src: "/assets/tattoo11.png", title: "Illusion" },
-  { id: 12, src: "/assets/tattoo12.png", title: "Ganesha" },
-  { id: 13, src: "/assets/tattoo13.png", title: "Portrait" },
-  { id: 14, src: "/assets/tattoo14.png", title: "Infinity" },
+  { id: 1,  title: "Custom Floral",     style: "Botanical" },
+  { id: 2,  title: "Dragon",            style: "Japanese" },
+  { id: 3,  title: "Spiritual Art",     style: "Spiritual" },
+  { id: 4,  title: "Geometric",         style: "Blackwork" },
+  { id: 5,  title: "Realism Study",     style: "Realism" },
+  { id: 6,  title: "Portrait",          style: "Realism" },
+  { id: 7,  title: "Mandala",           style: "Dotwork" },
+  { id: 8,  title: "Neo-Traditional",   style: "Neo-Trad" },
+  { id: 9,  title: "Anime Art",         style: "Illustrative" },
+  { id: 10, title: "Ornamental",        style: "Ornamental" },
+  { id: 11, title: "Fine Line",         style: "Fine Line" },
+  { id: 12, title: "Surrealism",        style: "Surreal" },
 ];
 
-const WA_LINK = `https://wa.me/918830911547?text=${encodeURIComponent("Hello! I'm interested in getting a tattoo at Black Pearl Tattoo Studio. 🎨")}`;
-const MAP_EMBED = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3783.47!2d73.850313!3d18.458188!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2eb2ac0e66491:0xa7ba330f576941f4!2sBlack%20Pearl%20Tattoo%20Studio%20%26%20Training%20Institute!5e0!3m2!1sen!2sin!4v1709000000000";
-const MAP_LINK = "https://www.google.com/maps/place/Black+Pearl+Tattoo+Studio+%26+Training+Institute/@18.595428,73.4977089,11z";
+const STYLES_LIST = [
+  "Custom Design", "Realism / Portrait", "Blackwork / Dotwork",
+  "Traditional / Neo-Trad", "Script / Lettering", "Cover-up / Rework",
+  "Spiritual / Religious", "Anime / Illustrative", "Not sure yet",
+];
 
-// ─── ICON COMPONENTS ────────────────────────────────────────────────────────
-const ArrowRight = () => (
-  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-    <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+/* ════════════════════════════════════════════════════════
+   ICONS
+════════════════════════════════════════════════════════ */
+const Ico = ({ d, fill = false, size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? "currentColor" : "none"} aria-hidden="true">
+    {Array.isArray(d)
+      ? d.map((p, i) => <path key={i} d={p} stroke={!fill ? "currentColor" : undefined} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill={fill ? "currentColor" : "none"} />)
+      : <path d={d} stroke={!fill ? "currentColor" : undefined} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill={fill ? "currentColor" : "none"} />}
   </svg>
 );
-const ChevronLeft = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-    <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-const ChevronRight = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-    <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-const CloseIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-    <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-  </svg>
-);
-const CheckIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-    <path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-const LocationIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
-  </svg>
-);
-const PhoneIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" fill="currentColor"/>
-  </svg>
-);
-const WhatsAppIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.114.549 4.099 1.515 5.827L.057 23.16a.75.75 0 00.916.916l5.333-1.458A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.714 9.714 0 01-4.961-1.357l-.356-.211-3.169.866.865-3.169-.211-.356A9.714 9.714 0 012.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/>
-  </svg>
-);
-const ClockIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
-    <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-  </svg>
-);
+
+const ArrowRight  = () => <Ico d="M5 12h14M13 6l6 6-6 6" />;
+const ChevLeft    = () => <Ico d="M15 18l-6-6 6-6" />;
+const ChevRight   = () => <Ico d="M9 6l6 6-6 6" />;
+const CloseX      = () => <Ico d="M18 6L6 18M6 6l12 12" />;
+const CheckMark   = () => <Ico d="M4 12l5 5 11-9" />;
+const PinIcon     = () => <Ico d={["M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z", "M12 10m-3 0a3 3 0 106 0 3 3 0 00-6 0"]} />;
+const PhoneIcon   = () => <Ico d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.1 11a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .84h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" />;
+const ClockIcon   = () => <Ico d={["M12 2a10 10 0 100 20A10 10 0 0012 2z", "M12 6v6l4 2"]} />;
+const ExtLink     = () => <Ico d={["M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6", "M15 3h6v6", "M10 14L21 3"]} />;
+const MenuIcon    = () => <Ico d={["M3 6h18", "M3 12h18", "M3 18h18"]} />;
+const XMenuIcon   = () => <Ico d={["M18 6L6 18", "M6 6l12 12"]} />;
+
 const InstaIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
   </svg>
 );
-const FbIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+const WaIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/>
+    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.114.549 4.099 1.515 5.827L.057 23.16a.75.75 0 00.916.916l5.333-1.458A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.714 9.714 0 01-4.961-1.357l-.356-.211-3.169.866.865-3.169-.211-.356A9.714 9.714 0 012.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/>
   </svg>
 );
 
-// ─── COMPONENTS ─────────────────────────────────────────────────────────────
+/* ════════════════════════════════════════════════════════
+   COMPONENTS
+════════════════════════════════════════════════════════ */
 
 function Navbar({ onBook }) {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled]   = useState(false);
+  const [menuOpen, setMenuOpen]   = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    const h = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", h, { passive: true });
+    return () => window.removeEventListener("scroll", h);
   }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     setMenuOpen(false);
   };
 
+  const navLinks = [
+    { id: "home",     label: "Home"     },
+    { id: "services", label: "Services" },
+    { id: "gallery",  label: "Gallery"  },
+    { id: "artist",   label: "Artist"   },
+    { id: "contact",  label: "Contact"  },
+  ];
+
   return (
     <>
       <nav className={`nav${scrolled ? " scrolled" : ""}`}>
-        <a className="nav-brand" href="#home">
-          <span className="nav-brand-dot"></span>
-          Black Pearl Tattoo
-        </a>
+        <button className="nav-brand" onClick={() => scrollTo("home")} aria-label="Home">
+          <div className="nav-brand-icon">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.2"/>
+              <path d="M7 2v5l3 2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <span className="nav-brand-text">INK<span>FINITY</span></span>
+        </button>
+
         <ul className="nav-links">
-          <li><a href="#home" onClick={(e) => { e.preventDefault(); scrollTo("home"); }}>Home</a></li>
-          <li><a href="#services" onClick={(e) => { e.preventDefault(); scrollTo("services"); }}>Services</a></li>
-          <li><a href="#gallery" onClick={(e) => { e.preventDefault(); scrollTo("gallery"); }}>Gallery</a></li>
-          <li><a href="#contact" onClick={(e) => { e.preventDefault(); scrollTo("contact"); }}>Contact</a></li>
-          <li><a href="#book" className="nav-cta" onClick={(e) => { e.preventDefault(); onBook(); }}>Book Now</a></li>
+          {navLinks.map(({ id, label }) => (
+            <li key={id}>
+              <button onClick={() => scrollTo(id)}>{label}</button>
+            </li>
+          ))}
+          <li>
+            <button className="nav-cta-btn" onClick={onBook}>Book Now</button>
+          </li>
         </ul>
-        <button className="nav-hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
-          <span style={menuOpen ? { transform: "rotate(45deg) translate(4px, 4px)" } : {}}></span>
-          <span style={menuOpen ? { opacity: 0 } : {}}></span>
-          <span style={menuOpen ? { transform: "rotate(-45deg) translate(4px, -4px)" } : {}}></span>
+
+        <button
+          className="nav-hamburger"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+        >
+          {menuOpen ? <XMenuIcon /> : <MenuIcon />}
         </button>
       </nav>
-      <div className={`mobile-menu${menuOpen ? " open" : ""}`}>
-        <a onClick={() => scrollTo("home")}>Home</a>
-        <a onClick={() => scrollTo("services")}>Services</a>
-        <a onClick={() => scrollTo("gallery")}>Gallery</a>
-        <a onClick={() => scrollTo("contact")}>Contact</a>
-        <button className="mobile-book-btn" onClick={() => { onBook(); setMenuOpen(false); }}>Book Appointment</button>
+
+      <div className={`mobile-overlay${menuOpen ? " open" : ""}`} onClick={() => setMenuOpen(false)} />
+      <div className={`mobile-drawer${menuOpen ? " open" : ""}`}>
+        {navLinks.map(({ id, label }, i) => (
+          <button key={id} className="mob-link" onClick={() => scrollTo(id)}>
+            <span className="mob-num">0{i + 1}</span>
+            {label}
+          </button>
+        ))}
+        <button className="mob-book-btn" onClick={() => { onBook(); setMenuOpen(false); }}>
+          Book a Session <ArrowRight />
+        </button>
+        <div className="mob-contact-info">
+          <a href={`tel:${PHONE_RAW}`}>{PHONE_DISPLAY}</a>
+          <span>Daily · 11 AM – 10 PM</span>
+        </div>
       </div>
     </>
   );
 }
 
 function Hero({ onBook }) {
+  const orbitDots = [0, 72, 144, 216, 288];
   return (
-    <section id="home" className="hero">
-      <div className="hero-bg-text">TATTOO</div>
+    <section id="home" className="hero" aria-label="Hero">
+      <div className="hero-glow" />
+      <div className="hero-glow-2" />
+      <div className="hero-grid" />
+      <div className="hero-bg-word" aria-hidden="true">TATTOO</div>
+
       <div className="hero-inner">
-        <div className="hero-content">
-          <div className="hero-label">
-            <span className="hero-label-line"></span>
-            Pune's Premier Tattoo Studio
+        {/* LEFT */}
+        <div>
+          <div className="hero-eyebrow">
+            <span className="hero-eyebrow-line" />
+            <span className="hero-eyebrow-dot" />
+            Pune's Finest Tattoo Studio
           </div>
-          <h1 className="hero-title">
-            Art that lives<br />
-            <em>on your skin.</em>
-          </h1>
-          <p className="hero-subtitle">
-            At Black Pearl Tattoo Studio, every design is a conversation between your story and our craft. We create tattoos that transcend trends and stand the test of time.
+          <h1 className="hero-title">INK<br/>FINITY</h1>
+          <div className="hero-title-sub">TATTOO STUDIO</div>
+          <p className="hero-desc">
+            By <strong>Abhi Borge</strong> — where ink becomes identity.
+            Premium custom tattoos crafted with precision, passion, and permanent artistry.
           </p>
           <div className="hero-actions">
             <button className="btn-primary" onClick={onBook}>
               Book Appointment <ArrowRight />
             </button>
             <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="btn-ghost">
-              WhatsApp Us
+              <WaIcon /> WhatsApp
             </a>
           </div>
           <div className="hero-stats">
-            <div className="stat">
-              <span className="stat-num">8+</span>
-              <span className="stat-label">Years Active</span>
-            </div>
-            <div className="stat">
-              <span className="stat-num">1k+</span>
-              <span className="stat-label">Satisfied Clients</span>
-            </div>
-            <div className="stat">
-              <span className="stat-num">100%</span>
-              <span className="stat-label">Custom Work</span>
-            </div>
+            {[
+              { num: "7+",   sup: "",  label: "Years Active" },
+              { num: "800",  sup: "+", label: "Clients Inked" },
+              { num: "100",  sup: "%", label: "Custom Work" },
+            ].map(({ num, sup, label }) => (
+              <div className="stat" key={label}>
+                <div className="stat-num">{num}<span>{sup}</span></div>
+                <div className="stat-label">{label}</div>
+              </div>
+            ))}
           </div>
         </div>
+
+        {/* RIGHT */}
         <div className="hero-visual">
-          <div className="hero-logo-frame">
-            <div className="hero-logo-placeholder">
-              <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                <path d="M40 8C22.327 8 8 22.327 8 40s14.327 32 32 32 32-14.327 32-32S57.673 8 40 8zm0 58C24.536 66 14 55.464 14 40S24.536 14 40 14s26 10.536 26 26-10.536 26-26 26z" fill="#1a1a1a"/>
-                <path d="M40 20c-11.046 0-20 8.954-20 20s8.954 20 20 20 20-8.954 20-20-8.954-20-20-20zm0 34c-7.732 0-14-6.268-14-14s6.268-14 14-14 14 6.268 14 14-6.268 14-14 14z" fill="#c9a84c"/>
-              </svg>
-              <span>Black Pearl<br/>Tattoo Studio</span>
-              <small>Pune, Maharashtra</small>
+          <div className="ring-outer" />
+          <div className="ring-inner" />
+          <div className="orbit">
+            {orbitDots.map((deg, i) => (
+              <div
+                key={i}
+                className="orbit-dot"
+                style={{ transform: `rotate(${deg}deg) translateY(-200px) rotate(-${deg}deg)` }}
+              />
+            ))}
+          </div>
+
+          <div className="hero-card">
+            <div className="hero-card-inner">
+              <div className="hero-card-icon">
+                <svg width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+                  <circle cx="28" cy="28" r="26" stroke="#00e5ff" strokeWidth="1" strokeDasharray="6 4" opacity="0.6"/>
+                  <path d="M28 8l4 12h13l-10.5 7.5 4 12L28 32l-10.5 7.5 4-12L11 20h13z" stroke="#00e5ff" strokeWidth="1.2" fill="none" opacity="0.8"/>
+                  <circle cx="28" cy="28" r="4" fill="#00e5ff" opacity="0.9"/>
+                </svg>
+              </div>
+              <div className="hero-card-name">INK<span>FINITY</span></div>
+              <div className="hero-card-artist">by Abhi Borge</div>
+              <div className="hero-card-sub">Pune, Maharashtra · Est. 2017</div>
             </div>
           </div>
-          <div className="hero-accent-1"></div>
-          <div className="hero-accent-2"></div>
-          <div className="hero-tag">
-            <div className="hero-tag-dot"></div>
-            <span className="hero-tag-text">Currently Accepting Clients</span>
+
+          <div className="hero-badge-1">
+            <div className="hero-badge-dot" />
+            <span className="hero-badge-text">Open 11 AM – 10 PM</span>
+          </div>
+          <div className="hero-badge-2">
+            ★ 4.9 &nbsp; Google Rating
           </div>
         </div>
+      </div>
+
+      <div className="scroll-indicator" aria-hidden="true">
+        <div className="scroll-line" />
+        <span className="scroll-text">Scroll</span>
       </div>
     </section>
   );
@@ -746,22 +1423,33 @@ function Hero({ onBook }) {
 
 function Services() {
   return (
-    <section id="services" className="section services">
+    <section id="services" className="section services-section">
       <div className="section-inner">
-        <div className="section-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "20px" }}>
+        <div className="services-header">
           <div>
-            <div className="section-label"><span className="section-label-line"></span>What We Do</div>
-            <h2 className="section-title">Our <em>Specialties</em></h2>
+            <div className="sec-label"><span className="sec-label-line" />What We Do</div>
+            <h2 className="sec-title">OUR<br /><span className="sec-title-outline">SPECIALTIES</span></h2>
           </div>
-          <p className="section-desc">Every style, mastered. Every vision, realised with precision and care.</p>
+          <p className="sec-desc" style={{ maxWidth: 360 }}>
+            Every style, mastered with care. Every vision realised with precision that stands the test of time.
+          </p>
         </div>
         <div className="services-grid">
           {SERVICES.map(s => (
-            <div className="service-card" key={s.num}>
-              <div className="service-num">{s.num}</div>
-              <div className="service-name">{s.name}</div>
-              <div className="service-desc">{s.desc}</div>
+            <div className="svc-card" key={s.num}>
+              <div className="svc-num">{s.num}</div>
+              <div className="svc-name">{s.name}</div>
+              <div className="svc-desc">{s.desc}</div>
+              <div className="svc-arrow">→</div>
             </div>
+          ))}
+        </div>
+        <div className="svc-strip">
+          {["Hygienic Studio", "Premium Inks", "Sterile Equipment", "Walk-ins Welcome", "All Skill Levels", "Free Consultation"].map((t, i, arr) => (
+            <>
+              <span key={t} className="svc-tag">{t}</span>
+              {i < arr.length - 1 && <span key={`sep-${i}`} className="svc-tag-sep" />}
+            </>
           ))}
         </div>
       </div>
@@ -771,76 +1459,115 @@ function Services() {
 
 function Gallery() {
   const [active, setActive] = useState(0);
-  const galleryRef = useRef(null);
-  const thumbRef = useRef(null);
-
-  const scrollGallery = (dir) => {
-    if (galleryRef.current) {
-      galleryRef.current.scrollBy({ left: dir === "left" ? -340 : 340, behavior: "smooth" });
-    }
-  };
+  const trackRef = useRef(null);
+  const thumbsRef = useRef(null);
 
   const goTo = (idx) => {
     setActive(idx);
-    if (galleryRef.current) {
-      galleryRef.current.scrollLeft = idx * (320 + 16);
-    }
-    if (thumbRef.current) {
-      thumbRef.current.scrollLeft = idx * (56 + 8) - 100;
-    }
+    if (trackRef.current)  trackRef.current.scrollLeft  = idx * (320 + 16);
+    if (thumbsRef.current) thumbsRef.current.scrollLeft = idx * (52 + 8) - 100;
   };
+  const prev = () => goTo(Math.max(0, active - 1));
+  const next = () => goTo(Math.min(IMAGES.length - 1, active + 1));
 
   return (
-    <section id="gallery" className="section gallery">
+    <section id="gallery" className="section gallery-section">
       <div className="section-inner">
-        <div className="section-header">
-          <div className="section-label"><span className="section-label-line"></span>Our Portfolio</div>
-          <h2 className="section-title">The <em>Gallery</em></h2>
-          <p className="section-desc">A curated glimpse into our studio's finest work.</p>
-        </div>
-        <div className="gallery-track-wrapper">
-          <button className="gallery-nav-btn" onClick={() => scrollGallery("left")} aria-label="Previous">
-            <ChevronLeft />
-          </button>
-          <div className="gallery-track" ref={galleryRef}>
-            {IMAGES.map((img, i) => (
-              <div
-                key={img.id}
-                className="gallery-card"
-                onClick={() => goTo(i)}
-                style={{ outline: i === active ? "2px solid #c9a84c" : "none", outlineOffset: "2px" }}
-              >
-                <div className="gallery-card-placeholder">
-                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" opacity="0.25">
-                    <rect x="2" y="2" width="28" height="28" rx="2" stroke="#1a1a1a" strokeWidth="1.5"/>
-                    <circle cx="11" cy="11" r="3" stroke="#1a1a1a" strokeWidth="1.5"/>
-                    <path d="M2 22l8-6 6 5 5-4 9 7" stroke="#1a1a1a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  <span>{img.title}</span>
-                </div>
-                <div className="gallery-card-caption">
-                  <div className="gallery-card-title">{img.title}</div>
-                </div>
-              </div>
-            ))}
+        <div className="gallery-header">
+          <div>
+            <div className="sec-label"><span className="sec-label-line" />Portfolio</div>
+            <h2 className="sec-title">THE<br /><span className="sec-title-outline">GALLERY</span></h2>
           </div>
-          <button className="gallery-nav-btn" onClick={() => scrollGallery("right")} aria-label="Next">
-            <ChevronRight />
-          </button>
+          <div className="gallery-controls">
+            <button className="gal-nav" onClick={prev} disabled={active === 0} aria-label="Previous">
+              <ChevLeft />
+            </button>
+            <span className="gal-counter">
+              {String(active + 1).padStart(2, "0")}
+              <span>/</span>
+              {String(IMAGES.length).padStart(2, "0")}
+            </span>
+            <button className="gal-nav" onClick={next} disabled={active === IMAGES.length - 1} aria-label="Next">
+              <ChevRight />
+            </button>
+          </div>
         </div>
-        <div className="gallery-thumbnails" ref={thumbRef}>
+
+        <div className="gallery-track" ref={trackRef}>
           {IMAGES.map((img, i) => (
             <div
               key={img.id}
-              className={`gallery-thumb${i === active ? " active" : ""}`}
+              className={`gal-card${i === active ? " active" : ""}`}
               onClick={() => goTo(i)}
             >
-              <div className="gallery-thumb-placeholder"></div>
+              <div className="gal-placeholder">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" opacity="0.2" aria-hidden="true">
+                  <rect x="1" y="1" width="30" height="30" rx="2" stroke="currentColor" strokeWidth="1"/>
+                  <circle cx="11" cy="11" r="3.5" stroke="currentColor" strokeWidth="1"/>
+                  <path d="M1 22l9-7 7 6 5-4 10 7" stroke="currentColor" strokeWidth="1"/>
+                </svg>
+                <span>{img.title}</span>
+              </div>
+              <div className="gal-overlay">
+                <div className="gal-style">{img.style}</div>
+                <div className="gal-title">{img.title}</div>
+              </div>
             </div>
           ))}
         </div>
-        <div className="gallery-counter">
-          {String(active + 1).padStart(2, "0")} / {String(IMAGES.length).padStart(2, "0")}
+
+        <div className="gallery-thumbs" ref={thumbsRef}>
+          {IMAGES.map((img, i) => (
+            <button
+              key={img.id}
+              className={`gal-thumb${i === active ? " active" : ""}`}
+              onClick={() => goTo(i)}
+              aria-label={`Go to ${img.title}`}
+            >
+              <div className="gal-thumb-inner" />
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Artist() {
+  const skills = ["Realism", "Blackwork", "Geometric", "Custom Design", "Cover-ups", "Fine Line"];
+  return (
+    <section id="artist" className="artist-section">
+      <div className="artist-inner">
+        {/* Photo frame */}
+        <div className="artist-img-frame">
+          <div className="artist-placeholder">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" opacity="0.2" aria-hidden="true">
+              <circle cx="24" cy="16" r="10" stroke="white" strokeWidth="1.5"/>
+              <path d="M4 44c0-11.046 8.954-20 20-20s20 8.954 20 20" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            <span>ARTIST PHOTO</span>
+          </div>
+          {["tl","tr","bl","br"].map(pos => (
+            <div key={pos} className={`artist-corner artist-corner-${pos}`} />
+          ))}
+        </div>
+
+        {/* Content */}
+        <div className="artist-content">
+          <div className="artist-pre">Meet the Artist</div>
+          <h2 className="artist-name">ABHI<br />BORGE</h2>
+          <div className="artist-title">Founder & Lead Tattoo Artist</div>
+          <blockquote className="artist-bio">
+            With over 7 years of tattooing experience in Pune, Abhi Borge has built Inkfinity into one of the city's most respected studios. His work spans realism, blackwork, and intricate custom designs — each piece a collaboration between artist and client.
+          </blockquote>
+          <div className="artist-skills">
+            {skills.map(s => <span key={s} className="artist-skill">{s}</span>)}
+          </div>
+          <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" className="artist-social">
+            <InstaIcon />
+            @inkfinity_tattoostudios
+            <ExtLink />
+          </a>
         </div>
       </div>
     </section>
@@ -848,70 +1575,101 @@ function Gallery() {
 }
 
 function Contact({ onBook }) {
+  const cards = [
+    {
+      icon: <PinIcon />,
+      label: "Studio Address",
+      value: "Inkfinity Tattoo Studio",
+      sub: "Gultekdi, Pune 411037, Maharashtra",
+      link: { href: MAP_LINK, text: "Open in Maps", external: true },
+    },
+    {
+      icon: <PhoneIcon />,
+      label: "Call Us",
+      value: PHONE_DISPLAY,
+      sub: "Daily — 11:00 AM to 10:00 PM",
+      link: { href: `tel:${PHONE_RAW}`, text: "Call Now" },
+    },
+    {
+      icon: <WaIcon />,
+      label: "WhatsApp",
+      value: PHONE_DISPLAY,
+      sub: "Quick replies · Share reference images",
+      link: { href: WA_LINK, text: "Chat Now", external: true },
+    },
+    {
+      icon: <ClockIcon />,
+      label: "Working Hours",
+      value: "11:00 AM – 10:00 PM",
+      sub: "Every day · Appointments preferred",
+    },
+  ];
+
   return (
-    <section id="contact" className="section contact">
+    <section id="contact" className="section contact-section">
       <div className="section-inner">
-        <div className="section-header">
-          <div className="section-label"><span className="section-label-line"></span>Find Us</div>
-          <h2 className="section-title">Get In <em>Touch</em></h2>
-          <p className="section-desc">We're here to make your tattoo journey smooth, memorable, and entirely yours.</p>
+        <div style={{ marginBottom: 64 }}>
+          <div className="sec-label"><span className="sec-label-line" />Find Us</div>
+          <h2 className="sec-title">GET IN<br /><span className="sec-title-outline">TOUCH</span></h2>
+          <p className="sec-desc" style={{ marginTop: 16, maxWidth: 500 }}>
+            Consultations are always free. Come visit us or reach out — we're excited to hear your ideas.
+          </p>
         </div>
         <div className="contact-grid">
           <div className="contact-cards">
-            <div className="contact-card">
-              <div className="contact-card-icon"><LocationIcon /></div>
-              <div>
-                <div className="contact-card-label">Location</div>
-                <span className="contact-card-value">Black Pearl Tattoo Studio & Training Institute</span>
-                <div className="contact-card-sub">Pune, Maharashtra, India</div>
-                <a href={MAP_LINK} target="_blank" rel="noopener noreferrer"
-                   style={{ display:"inline-flex", alignItems:"center", gap:"6px", marginTop:"10px", fontSize:"12px", fontWeight:600, letterSpacing:"1.5px", textTransform:"uppercase", color:"var(--gold)", textDecoration:"none" }}>
-                  Open in Maps <ArrowRight />
-                </a>
+            {cards.map((card, i) => (
+              <div key={i} className="c-card">
+                <div className="c-icon">{card.icon}</div>
+                <div>
+                  <div className="c-label">{card.label}</div>
+                  {card.link ? (
+                    <a
+                      href={card.link.href}
+                      className="c-val"
+                      target={card.link.external ? "_blank" : undefined}
+                      rel={card.link.external ? "noopener noreferrer" : undefined}
+                    >
+                      {card.value}
+                    </a>
+                  ) : (
+                    <span className="c-val">{card.value}</span>
+                  )}
+                  <div className="c-sub">{card.sub}</div>
+                  {card.link && (
+                    <a
+                      href={card.link.href}
+                      className="c-link"
+                      target={card.link.external ? "_blank" : undefined}
+                      rel={card.link.external ? "noopener noreferrer" : undefined}
+                    >
+                      {card.link.text} <ArrowRight />
+                    </a>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="contact-card">
-              <div className="contact-card-icon"><PhoneIcon /></div>
-              <div>
-                <div className="contact-card-label">Call Us</div>
-                <a href="tel:+918830911547" className="contact-card-value">+91 88309 11547</a>
-                <div className="contact-card-sub">Mon – Sun, 10 AM – 8 PM</div>
-              </div>
-            </div>
-            <div className="contact-card">
-              <div className="contact-card-icon"><WhatsAppIcon /></div>
-              <div>
-                <div className="contact-card-label">WhatsApp</div>
-                <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="contact-card-value">+91 88309 11547</a>
-                <div className="contact-card-sub">Quick replies guaranteed</div>
-              </div>
-            </div>
-            <div className="contact-card">
-              <div className="contact-card-icon"><ClockIcon /></div>
-              <div>
-                <div className="contact-card-label">Working Hours</div>
-                <span className="contact-card-value">10:00 AM – 8:00 PM</span>
-                <div className="contact-card-sub">Appointments recommended</div>
-              </div>
-            </div>
-            <button className="btn-primary" onClick={onBook} style={{ marginTop: "8px", justifyContent: "center" }}>
+            ))}
+            <button className="btn-primary" onClick={onBook} style={{ justifyContent: "center", marginTop: 8 }}>
               Book Your Session <ArrowRight />
             </button>
           </div>
+
           <div>
-            <div className="map-block">
+            <div className="map-wrap">
               <iframe
                 src={MAP_EMBED}
                 width="100%" height="380"
                 style={{ border: 0, display: "block" }}
                 allowFullScreen loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Black Pearl Tattoo Studio Location"
+                title="Inkfinity Tattoo Studio Location"
               />
-              <div className="map-link-row">
-                <span style={{ fontSize:"12px", color:"var(--ink-muted)", letterSpacing:"0.5px" }}>Black Pearl Tattoo Studio, Pune</span>
-                <a href={MAP_LINK} target="_blank" rel="noopener noreferrer" className="map-link-btn">
-                  Get Directions <ArrowRight />
+              <div className="map-footer">
+                <div className="map-status">
+                  <div className="map-dot" />
+                  <span>Inkfinity Tattoo, Gultekdi, Pune</span>
+                </div>
+                <a href={MAP_LINK} target="_blank" rel="noopener noreferrer" className="map-dir">
+                  Directions <ExtLink />
                 </a>
               </div>
             </div>
@@ -922,72 +1680,127 @@ function Contact({ onBook }) {
   );
 }
 
-function Form({ isOpen, onClose }) {
-  const [form, setForm] = useState({ name: "", phone: "", style: "", message: "" });
+function BookingModal({ isOpen, onClose }) {
+  const [form, setForm]         = useState({ name: "", phone: "", style: "", placement: "", message: "" });
+  const [step, setStep]         = useState(1);
+  const [loading, setLoading]   = useState(false);
   const [submitted, setSubmitted] = useState(false);
-
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setForm({ name: "", phone: "", style: "", message: "" });
-      onClose();
-    }, 3000);
-  };
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
+    if (!isOpen) { setStep(1); setSubmitted(false); setForm({ name: "", phone: "", style: "", placement: "", message: "" }); }
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const handleChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
+
+  const handleStep1 = (e) => { e.preventDefault(); setStep(2); };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    await new Promise(r => setTimeout(r, 1400));
+    setLoading(false);
+    setSubmitted(true);
+    setTimeout(onClose, 4000);
+  };
+
+  const waLink = `https://wa.me/919673340204?text=${encodeURIComponent(
+    `Hi! I'm ${form.name || "there"}, interested in a ${form.style || "tattoo"} at Inkfinity. ${form.message || ""}`
+  )}`;
+
   return (
-    <div className={`modal-overlay${isOpen ? " open" : ""}`} onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div
+      className={`modal-overlay${isOpen ? " open" : ""}`}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+      role="dialog" aria-modal="true"
+    >
       <div className="modal">
-        <button className="modal-close" onClick={onClose} aria-label="Close"><CloseIcon /></button>
-        <div className="modal-label">Book a Session</div>
-        <h2 className="modal-title">Let's create something extraordinary.</h2>
-        {submitted && (
-          <div className="form-success">
-            <CheckIcon /> Thank you! We'll be in touch very soon.
+        <div className="modal-header">
+          <div>
+            <div className="modal-label-top">Studio Booking</div>
+            <h2 className="modal-title">
+              {submitted ? "REQUEST SENT" : step === 1 ? "YOUR DETAILS" : "YOUR VISION"}
+            </h2>
+          </div>
+          <button className="modal-close-btn" onClick={onClose} aria-label="Close">
+            <CloseX />
+          </button>
+        </div>
+
+        {!submitted && (
+          <div className="modal-steps">
+            <div className={`m-step${step >= 1 ? " active" : ""}`}>
+              <span className="m-step-num">01</span> Contact
+            </div>
+            <div className="m-step-line" />
+            <div className={`m-step${step === 2 ? " active" : ""}`}>
+              <span className="m-step-num">02</span> Design
+            </div>
           </div>
         )}
-        <form onSubmit={handleSubmit}>
-          <div className="form-field">
-            <label>Your Name</label>
-            <input className="form-input" type="text" name="name" placeholder="Full name" value={form.name} onChange={handleChange} required />
+
+        {submitted ? (
+          <div className="f-success">
+            <div className="f-success-icon"><CheckMark /></div>
+            <h3>We'll contact you soon!</h3>
+            <p>Thank you, <strong>{form.name}</strong>. Your request is confirmed. Abhi will reach out shortly to discuss your design.</p>
+            <a href={waLink} target="_blank" rel="noopener noreferrer" className="f-wa-btn">
+              <WaIcon /> Also message on WhatsApp
+            </a>
           </div>
-          <div className="form-field">
-            <label>Phone Number</label>
-            <input className="form-input" type="tel" name="phone" placeholder="+91 00000 00000" value={form.phone} onChange={handleChange} required />
+        ) : step === 1 ? (
+          <form className="modal-form" onSubmit={handleStep1}>
+            <div>
+              <label className="f-label" htmlFor="name">Full Name *</label>
+              <input id="name" className="f-input" type="text" name="name" placeholder="Your full name" value={form.name} onChange={handleChange} required autoComplete="name" />
+            </div>
+            <div>
+              <label className="f-label" htmlFor="phone">Phone Number *</label>
+              <input id="phone" className="f-input" type="tel" name="phone" placeholder="+91 00000 00000" value={form.phone} onChange={handleChange} required autoComplete="tel" />
+            </div>
+            <div>
+              <label className="f-label" htmlFor="placement">Body Placement</label>
+              <input id="placement" className="f-input" type="text" name="placement" placeholder="e.g. Forearm, Chest, Shoulder..." value={form.placement} onChange={handleChange} />
+            </div>
+            <div className="f-actions">
+              <button type="submit" className="f-next">Continue <ArrowRight /></button>
+            </div>
+          </form>
+        ) : (
+          <form className="modal-form" onSubmit={handleSubmit}>
+            <div>
+              <label className="f-label" htmlFor="style">Tattoo Style</label>
+              <select id="style" className="f-input" name="style" value={form.style} onChange={handleChange} style={{ cursor: "pointer" }}>
+                <option value="">Select a style...</option>
+                {STYLES_LIST.map(s => <option key={s}>{s}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="f-label" htmlFor="message">Describe Your Idea</label>
+              <textarea id="message" className="f-input f-textarea" name="message" placeholder="Tell us about your tattoo idea — references, size, meaning..." value={form.message} onChange={handleChange} />
+            </div>
+            <div className="f-actions">
+              <button type="button" className="f-back" onClick={() => setStep(1)}>← Back</button>
+              <button type="submit" className="f-submit" disabled={loading}>
+                {loading ? <span className="f-spinner" /> : <>Send Request <ArrowRight /></>}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {!submitted && (
+          <div className="modal-footer">
+            Prefer instant chat?{" "}
+            <a href={WA_LINK} target="_blank" rel="noopener noreferrer">WhatsApp us directly →</a>
           </div>
-          <div className="form-field">
-            <label>Tattoo Style</label>
-            <select className="form-input" name="style" value={form.style} onChange={handleChange} style={{ cursor:"pointer" }}>
-              <option value="">Select a style...</option>
-              <option>Custom Design</option>
-              <option>Realism / Portrait</option>
-              <option>Traditional / Neo-Trad</option>
-              <option>Blackwork / Dotwork</option>
-              <option>Script / Lettering</option>
-              <option>Cover-up / Rework</option>
-              <option>Not sure yet</option>
-            </select>
-          </div>
-          <div className="form-field">
-            <label>Tell us your idea</label>
-            <textarea className="form-input form-textarea" name="message" placeholder="Describe your tattoo idea, placement, size..." value={form.message} onChange={handleChange} />
-          </div>
-          <button type="submit" className="form-submit">
-            Send Request <ArrowRight />
-          </button>
-        </form>
-        <p className="form-alt">
-          Prefer instant contact?{" "}
-          <a href={WA_LINK} target="_blank" rel="noopener noreferrer">Message us on WhatsApp →</a>
-        </p>
+        )}
       </div>
     </div>
   );
@@ -999,57 +1812,101 @@ function Footer() {
 
   return (
     <footer className="footer">
-      <div className="footer-inner">
-        <div>
-          <div className="footer-brand-name">Black Pearl Tattoo</div>
-          <p className="footer-brand-tag">Premium custom tattoo artistry in Pune, Maharashtra. Where your story becomes permanent art.</p>
-          <div className="footer-socials">
-            <a href="#" className="footer-social" aria-label="Instagram"><InstaIcon /></a>
-            <a href="#" className="footer-social" aria-label="Facebook"><FbIcon /></a>
-            <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="WhatsApp"><WhatsAppIcon /></a>
+      {/* CTA Banner */}
+      <div className="footer-cta">
+        <div className="footer-cta-inner">
+          <div>
+            <div className="footer-cta-pre">Ready to get inked?</div>
+            <h3 className="footer-cta-title">BOOK YOUR FREE CONSULTATION.</h3>
           </div>
-        </div>
-        <div>
-          <div className="footer-col-title">Navigate</div>
-          <ul className="footer-links">
-            <li><a href="#home" onClick={(e) => { e.preventDefault(); scrollTo("home"); }}>Home</a></li>
-            <li><a href="#services" onClick={(e) => { e.preventDefault(); scrollTo("services"); }}>Services</a></li>
-            <li><a href="#gallery" onClick={(e) => { e.preventDefault(); scrollTo("gallery"); }}>Gallery</a></li>
-            <li><a href="#contact" onClick={(e) => { e.preventDefault(); scrollTo("contact"); }}>Contact</a></li>
-          </ul>
-        </div>
-        <div>
-          <div className="footer-col-title">Contact</div>
-          <ul className="footer-links">
-            <li><a href="tel:+918830911547">+91 88309 11547</a></li>
-            <li><a href={WA_LINK} target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
-            <li><a href={MAP_LINK} target="_blank" rel="noopener noreferrer">Get Directions</a></li>
-            <li><a href="#contact" onClick={(e) => { e.preventDefault(); scrollTo("contact"); }}>Find Us</a></li>
-          </ul>
+          <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="footer-cta-btn">
+            WhatsApp Now <ArrowRight />
+          </a>
         </div>
       </div>
-      <div className="footer-bottom">
-        <span className="footer-copy">© {year} Black Pearl Tattoo Studio & Training Institute. All rights reserved.</span>
-        <span className="footer-dev">Made by <a href="https://shauryait.vercel.app" target="_blank" rel="noreferrer">shauryait.vercel.app</a></span>
+
+      {/* Main */}
+      <div className="footer-main">
+        <div className="footer-grid">
+          <div>
+            <div className="footer-brand-icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="8" cy="8" r="6.5" stroke="#00e5ff" strokeWidth="1"/>
+                <path d="M8 2v6l3.5 2" stroke="#00e5ff" strokeWidth="1.2" strokeLinecap="round"/>
+              </svg>
+            </div>
+            <div className="footer-brand-name">INK<span>FINITY</span></div>
+            <div className="footer-brand-by">by Abhi Borge</div>
+            <div className="footer-brand-desc">
+              Premium custom tattoo artistry in Pune. Where ink becomes identity and art becomes permanent.
+            </div>
+            <div className="footer-socials">
+              <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="Instagram"><InstaIcon /></a>
+              <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="WhatsApp"><WaIcon /></a>
+            </div>
+          </div>
+
+          <div>
+            <div className="footer-col-title">Navigate</div>
+            <ul className="footer-links">
+              {["home","services","gallery","artist","contact"].map(id => (
+                <li key={id}>
+                  <a href={`#${id}`} onClick={(e) => { e.preventDefault(); scrollTo(id); }}>
+                    {id.charAt(0).toUpperCase() + id.slice(1)}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <div className="footer-col-title">Contact</div>
+            <ul className="footer-links">
+              <li><a href={`tel:${PHONE_RAW}`}>{PHONE_DISPLAY}</a></li>
+              <li><a href={WA_LINK} target="_blank" rel="noopener noreferrer">WhatsApp Chat</a></li>
+              <li><a href={MAP_LINK} target="_blank" rel="noopener noreferrer">Get Directions</a></li>
+              <li><a href={INSTAGRAM} target="_blank" rel="noopener noreferrer">Instagram</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <div className="footer-col-title">Hours</div>
+            <div className="footer-hours">
+              <div className="footer-hr">
+                <span>Mon – Sun</span>
+                <span className="footer-hr-time">11 AM – 10 PM</span>
+              </div>
+              <div className="footer-open">Open Today</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="footer-bottom">
+          <span className="footer-copy">© {year} Inkfinity Tattoo Studio. All rights reserved.</span>
+          <span className="footer-credit">Made by <a href="https://shauryait.vercel.app" target="_blank" rel="noreferrer">shauryait.vercel.app</a></span>
+        </div>
       </div>
     </footer>
   );
 }
 
-// ─── APP ────────────────────────────────────────────────────────────────────
-export default function App() {
-  const [formOpen, setFormOpen] = useState(false);
+/* ════════════════════════════════════════════════════════
+   APP
+════════════════════════════════════════════════════════ */
+export default function Home() {
+  const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <>
       <style>{STYLES}</style>
-      <Navbar onBook={() => setFormOpen(true)} />
-      <Hero onBook={() => setFormOpen(true)} />
+      <Navbar    onBook={() => setModalOpen(true)} />
+      <Hero      onBook={() => setModalOpen(true)} />
       <Services />
       <Gallery />
-      <Contact onBook={() => setFormOpen(true)} />
+      <Artist />
+      <Contact   onBook={() => setModalOpen(true)} />
       <Footer />
-      <Form isOpen={formOpen} onClose={() => setFormOpen(false)} />
+      <BookingModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     </>
   );
 }
