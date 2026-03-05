@@ -1202,7 +1202,6 @@ const IMAGES = [
   { id: 11, src: "/assets/tattoo11.png", title: "Fine Line",         style: "Fine Line" },
   { id: 12, src: "/assets/tattoo12.png", title: "Surrealism",        style: "Surreal" },
   { id: 13, src: "/assets/tattoo13.png", title: "Blackwork",         style: "Blackwork" },
-  { id: 14, src: "/assets/tattoo14.png", title: "Custom Piece",      style: "Custom" },
 ];
 
 
